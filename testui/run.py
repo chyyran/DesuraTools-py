@@ -8,5 +8,5 @@ print "What is your Desura username?"
 username = raw_input()
 try:
     webbrowser.open(str(TestReport(username)))
-except Exception:
-    print "Invalid Desura Username"
+except Exception, e:
+    print "Invalid Desura Username", e.message, e.args

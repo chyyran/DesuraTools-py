@@ -13,7 +13,13 @@ class GamesList:
         :param desuraname: Member name
         """
         self.desuraname = desuraname
+        self._test_for_private()
         self.pages = self._get_pages()
+
+    def _test_for_private(self):
+        desura = urllib2.urlopen("http://www.desura.com/members/{0}/".format(self.desuraname)).read()
+        if re.search(r'The member you are trying to view has set their account to private', desura) is not None:
+            raise PrivateProfileError("Private Desura Profiles are not supported", self.desuraname)
 
     def _get_pages(self):
         """
@@ -52,6 +58,5 @@ class GamesList:
                 games.append(DesuraGame(matches["shortname"][match], matches["name"][match], matches["icon"][match][0]))
         return games
 
-if __name__ == "__main__":
-    games = GamesList("ron975")
-    print games.get_games()[1].install()
+
+class PrivateProfileError(Exception): pass
