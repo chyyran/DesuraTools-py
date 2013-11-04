@@ -27,4 +27,3 @@ def choose_userdata_folder():
     return shortcutmanager.SteamShortcutManager(
         usermanager.shortcuts_file_for_user_id(associate_ids_with_users()[index-1]['steamid32'])
     )
-

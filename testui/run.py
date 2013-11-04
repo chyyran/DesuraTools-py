@@ -1,6 +1,7 @@
 #coding=utf-8
 __author__ = 'ron975'
 import webbrowser
+
 from PIL import Image
 from generatehtml import TestReport
 
@@ -28,3 +29,4 @@ if options == "steam":
     manager.save()
     for shortcut in manager.shortcuts:
         print shortcut.appname
+
