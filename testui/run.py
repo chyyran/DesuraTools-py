@@ -4,6 +4,7 @@ import webbrowser
 
 from PIL import Image
 from generatehtml import TestReport
+import icons
 
 import installedgames, steammanager
 
@@ -25,6 +26,8 @@ if options == "steam":
         if game.icon.lower().endswith("jpeg") or game.icon.lower().endswith("jpg"):
             Image.open(game.icon).save(game.icon+".png")
             game.icon += ".png"
+        if icons.check_icon(game.exe, game.icon):
+            game.icon = ""
         steammanager.insert_shortcut(manager, game.name, game.exe, icon=game.icon)
     manager.save()
     for shortcut in manager.shortcuts:
