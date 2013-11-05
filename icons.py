@@ -48,9 +48,24 @@ def get_icon(exe):
     icon_bmp.CreateCompatibleBitmap(hdc, ico_x, ico_y)
     hdc = hdc.CreateCompatibleDC()
     hdc.SelectObject(icon_bmp)
-    hdc.DrawIcon((0,0), small[0])
+    hdc.DrawIcon((0,0), small[0]) #draw the icon before getting bits
     icon_info = icon_bmp.GetInfo()
     icon_buffer = icon_bmp.GetBitmapBits(True)
     icon = Image.frombuffer('RGB', (icon_info['bmWidth'], icon_info['bmHeight']), icon_buffer, 'raw', 'BGRX', 0, 1)
     win32gui.DestroyIcon(small[0])
     return icon
+
+
+def choose_icon(game):
+    """
+    Decides what icon to use when inserting into Steam.
+    :param game:
+    :return:
+    """
+    if game.icon.lower().endswith("jpeg") or game.icon.lower().endswith("jpg"):
+        Image.open(game.icon).save(game.icon+".png")
+        game.icon += ".png"
+    if check_icon(game.exe, game.icon):
+        game.icon = ""
+
+    return game.icon
