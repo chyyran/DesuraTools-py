@@ -19,6 +19,12 @@ def associate_ids_with_users():
         steamusers.append({'steamid32': id, 'customurl': usermanager.name_from_communityid32(id)})
     return steamusers
 
+def get_customurls_on_machine():
+    steamusers = []
+    for id in usermanager.user_ids_on_this_machine():
+        steamusers.append(usermanager.name_from_communityid32(id))
+    return steamusers
+
 def choose_userdata_folder():
     for index, user in enumerate(associate_ids_with_users()):
         print index+1, user['steamid32'], user['customurl']

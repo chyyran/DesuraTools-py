@@ -16,6 +16,7 @@ class DesuraGame:
         self.icon = icon
 
     def install(self):
+        print "Installing", self.shortname
         webbrowser.open("desura://install/games/{0}/".format(self.shortname))
 
 

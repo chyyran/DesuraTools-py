@@ -23,7 +23,7 @@ if options == "steam":
     print "Which is your Steam Account?"
     manager = steammanager.choose_userdata_folder()
     for game in installedgames.get_games():
-        game.icon = icons.choose_icon(game)
+        game.icon = icons.choose_icon(game)[0]
         steammanager.insert_shortcut(manager, game.name, game.exe, icon=game.icon)
     manager.save()
     for shortcut in manager.shortcuts:
