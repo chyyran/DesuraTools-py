@@ -71,36 +71,40 @@
      </layout>
     </item>
     <item>
-     <widget class="Line" name="line_3">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
-    <item>
      <layout class="QGridLayout" name="gridLayout_3">
       <item row="0" column="0">
        <widget class="QTabWidget" name="tabWidget">
+        <property name="contextMenuPolicy">
+         <enum>Qt::DefaultContextMenu</enum>
+        </property>
         <property name="currentIndex">
          <number>0</number>
         </property>
-        <widget class="QWidget" name="installGamesTab">
-         <attribute name="title">
-          <string>Owned Desura Games</string>
-         </attribute>
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="0" column="0">
-           <widget class="QListWidget" name="installGames_list"/>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="addToSteam_tab">
+        <widget class="QWidget" name="installedGames_tab">
          <attribute name="title">
           <string>Installed Desura Games</string>
          </attribute>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="0">
-           <widget class="QListWidget" name="addToSteam_list"/>
+           <widget class="QListWidget" name="installedGames_list">
+            <property name="contextMenuPolicy">
+             <enum>Qt::CustomContextMenu</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="ownedGamesTab">
+         <attribute name="title">
+          <string>Owned Desura Games</string>
+         </attribute>
+         <layout class="QGridLayout" name="gridLayout_4">
+          <item row="0" column="0">
+           <widget class="QListWidget" name="ownedGames_list">
+            <property name="contextMenuPolicy">
+             <enum>Qt::CustomContextMenu</enum>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -118,20 +122,37 @@
     <item>
      <layout class="QHBoxLayout" name="gameInfoContainer">
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QLabel" name="label_2">
+         <widget class="QLabel" name="gameIcon_label">
+          <property name="minimumSize">
+           <size>
+            <width>32</width>
+            <height>32</height>
+           </size>
+          </property>
           <property name="text">
-           <string>GameIcon</string>
+           <string/>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>GameName</string>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QLabel" name="gameName_label">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="gameShortName_label">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
@@ -149,16 +170,16 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="desuraButton">
+       <widget class="QPushButton" name="refreshButton">
         <property name="text">
-         <string>Desura Page</string>
+         <string>Refresh Games List</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="installButton">
         <property name="text">
-         <string>Install</string>
+         <string>Install Selected Games</string>
         </property>
        </widget>
       </item>
@@ -179,22 +200,34 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionGeneratre_Desura_Report"/>
+    <addaction name="generateDesuraReport_action"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <action name="actionAdd_Selected_to_Steam">
-   <property name="text">
-    <string>Install Selected</string>
-   </property>
-  </action>
-  <action name="actionGeneratre_Desura_Report">
+  <action name="generateDesuraReport_action">
    <property name="text">
     <string>Generate Desura Report</string>
    </property>
   </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>desuraAccountName_input</sender>
+   <signal>returnPressed()</signal>
+   <receiver>desuraAccountName_verify</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>41</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>283</x>
+     <y>42</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
