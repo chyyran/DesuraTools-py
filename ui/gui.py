@@ -7,8 +7,10 @@ import urllib
 import socket
 import httplib
 
-from PySide.QtGui import QMainWindow, QApplication, QListWidgetItem, QAbstractItemView, QPixmap, QMenu,QAction, QMessageBox, QCursor
+from PySide.QtGui import QMainWindow, QApplication, QListWidgetItem, QAbstractItemView, QPixmap, QMenu
+from PySide.QtGui import QAction, QMessageBox, QCursor
 from PySide.QtCore import Qt
+
 import icons
 import steammanager
 import installedgames
@@ -174,7 +176,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return self.ownedGames_list, 1
 
 
-if __name__ == '__main__':
+def run():
     app = QApplication(sys.argv)
     try:
         frame = MainWindow(app)
@@ -190,3 +192,5 @@ if __name__ == '__main__':
         errorbox.setText("An error occured when starting DesuraTools<br /><i>{0}</i>".format(e.message))
         errorbox.setIcon(QMessageBox.Critical)
         errorbox.exec_()
+if __name__ == '__main__':
+    run()
