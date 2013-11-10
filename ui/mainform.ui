@@ -40,7 +40,7 @@
       <item>
        <widget class="QPushButton" name="desuraAccountName_verify">
         <property name="text">
-         <string>Verify Account</string>
+         <string>Load Games</string>
         </property>
        </widget>
       </item>
@@ -77,8 +77,11 @@
         <property name="contextMenuPolicy">
          <enum>Qt::DefaultContextMenu</enum>
         </property>
+        <property name="tabShape">
+         <enum>QTabWidget::Rounded</enum>
+        </property>
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="installedGames_tab">
          <attribute name="title">
@@ -170,16 +173,23 @@
        </spacer>
       </item>
       <item>
+       <widget class="QPushButton" name="selectAllButton">
+        <property name="text">
+         <string>Select All</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="refreshButton">
         <property name="text">
-         <string>Refresh Games List</string>
+         <string>Refresh List</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="installButton">
         <property name="text">
-         <string>Install Selected Games</string>
+         <string>Install Selected</string>
         </property>
        </widget>
       </item>
@@ -201,6 +211,7 @@
      <string>File</string>
     </property>
     <addaction name="generateDesuraReport_action"/>
+    <addaction name="refreshLists_action"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -208,6 +219,11 @@
   <action name="generateDesuraReport_action">
    <property name="text">
     <string>Generate Desura Report</string>
+   </property>
+  </action>
+  <action name="refreshLists_action">
+   <property name="text">
+    <string>Refresh All Games</string>
    </property>
   </action>
  </widget>

@@ -19,8 +19,18 @@ class DesuraGame:
         print "Installing", self.shortname
         webbrowser.open("desura://install/games/{0}/".format(self.shortname))
 
+    def uninstall(self):
+        print "Uninstalling", self.shortname
+        webbrowser.open("desura://uninstall/games/{0}/".format(self.shortname))
 
-class InstalledGame:
+    def verify(self):
+        print "Verifying", self.shortname
+        webbrowser.open("desura://verify/games/{0}/".format(self.shortname))
+
+    def storepage(self):
+        webbrowser.open("http://desura.com/games/{0}".format(self.shortname))
+
+class InstalledGame(DesuraGame):
     def __init__(self, shortname, name, exe, icon):
         """
         Represents a Desura game that is installed locally on the system.
@@ -34,3 +44,6 @@ class InstalledGame:
         self.name = name
         self.exe = exe
         self.icon = icon
+
+    def install(self):
+        raise NotImplementedError()

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'D:\Coding\Python\DesuraTools\qtui\mainform.ui'
 #
-# Created: Thu Nov 07 00:44:30 2013
+# Created: Sat Nov 09 22:19:46 2013
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -47,6 +47,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.setObjectName("gridLayout_3")
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
         self.tabWidget.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
+        self.tabWidget.setTabShape(QtGui.QTabWidget.Rounded)
         self.tabWidget.setObjectName("tabWidget")
         self.installedGames_tab = QtGui.QWidget()
         self.installedGames_tab.setObjectName("installedGames_tab")
@@ -96,6 +97,9 @@ class Ui_MainWindow(object):
         self.gameInfoContainer.addLayout(self.horizontalLayout)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.gameInfoContainer.addItem(spacerItem)
+        self.selectAllButton = QtGui.QPushButton(self.centralwidget)
+        self.selectAllButton.setObjectName("selectAllButton")
+        self.gameInfoContainer.addWidget(self.selectAllButton)
         self.refreshButton = QtGui.QPushButton(self.centralwidget)
         self.refreshButton.setObjectName("refreshButton")
         self.gameInfoContainer.addWidget(self.refreshButton)
@@ -115,11 +119,14 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusBar)
         self.generateDesuraReport_action = QtGui.QAction(MainWindow)
         self.generateDesuraReport_action.setObjectName("generateDesuraReport_action")
+        self.refreshLists_action = QtGui.QAction(MainWindow)
+        self.refreshLists_action.setObjectName("refreshLists_action")
         self.menuFile.addAction(self.generateDesuraReport_action)
+        self.menuFile.addAction(self.refreshLists_action)
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QObject.connect(self.desuraAccountName_input, QtCore.SIGNAL("returnPressed()"), self.desuraAccountName_verify.click)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -127,12 +134,14 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "DesuraTools", None, QtGui.QApplication.UnicodeUTF8))
         self.desuraAccountName_label.setText(QtGui.QApplication.translate("MainWindow", "Desura Account Name", None, QtGui.QApplication.UnicodeUTF8))
         self.desuraAccountName_input.setPlaceholderText(QtGui.QApplication.translate("MainWindow", "Your Desura Username", None, QtGui.QApplication.UnicodeUTF8))
-        self.desuraAccountName_verify.setText(QtGui.QApplication.translate("MainWindow", "Verify Account", None, QtGui.QApplication.UnicodeUTF8))
+        self.desuraAccountName_verify.setText(QtGui.QApplication.translate("MainWindow", "Load Games", None, QtGui.QApplication.UnicodeUTF8))
         self.steamID_label.setText(QtGui.QApplication.translate("MainWindow", "Steam ID", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.installedGames_tab), QtGui.QApplication.translate("MainWindow", "Installed Desura Games", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.ownedGamesTab), QtGui.QApplication.translate("MainWindow", "Owned Desura Games", None, QtGui.QApplication.UnicodeUTF8))
-        self.refreshButton.setText(QtGui.QApplication.translate("MainWindow", "Refresh Games List", None, QtGui.QApplication.UnicodeUTF8))
-        self.installButton.setText(QtGui.QApplication.translate("MainWindow", "Install Selected Games", None, QtGui.QApplication.UnicodeUTF8))
+        self.selectAllButton.setText(QtGui.QApplication.translate("MainWindow", "Select All", None, QtGui.QApplication.UnicodeUTF8))
+        self.refreshButton.setText(QtGui.QApplication.translate("MainWindow", "Refresh List", None, QtGui.QApplication.UnicodeUTF8))
+        self.installButton.setText(QtGui.QApplication.translate("MainWindow", "Install Selected", None, QtGui.QApplication.UnicodeUTF8))
         self.menuFile.setTitle(QtGui.QApplication.translate("MainWindow", "File", None, QtGui.QApplication.UnicodeUTF8))
         self.generateDesuraReport_action.setText(QtGui.QApplication.translate("MainWindow", "Generate Desura Report", None, QtGui.QApplication.UnicodeUTF8))
+        self.refreshLists_action.setText(QtGui.QApplication.translate("MainWindow", "Refresh All Games", None, QtGui.QApplication.UnicodeUTF8))
 

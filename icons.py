@@ -62,10 +62,10 @@ def choose_icon(game):
     :param game:
     :return:
     """
+    icon = game.icon
     if game.icon.lower().endswith("jpeg") or game.icon.lower().endswith("jpg"):
         Image.open(game.icon).save(game.icon+".png")
-        game.icon += ".png"
+        icon += ".png"
     if check_icon(game.exe, game.icon):
-        game.icon = ""
-
-    return game.icon
+        icon = ""
+    return icon

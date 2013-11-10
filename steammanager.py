@@ -8,10 +8,10 @@ import steam.steam_user_manager as usermanager
 def insert_shortcut(manager, name, exe, icon=""):
     for shortcut in manager.shortcuts:
         if shortcut.appname == name:
-            print shortcut.appname, "already exists, skipping"
-            return
+            return False
     manager.add_shortcut(name, "\""+exe+"\"", "\""+os.path.dirname(exe)+"\"", icon=icon)
-    print "Added game", name, "to the Steam Library"
+    return True
+
 
 def associate_ids_with_users():
     steamusers = []

@@ -37,3 +37,7 @@ nosetests.xml
 
 .html
 .idea/
+
+.json
+build/
+dist/

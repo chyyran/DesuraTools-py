@@ -24,7 +24,7 @@ class TextUI:
             print "Which is your Steam Account?"
             manager = steammanager.choose_userdata_folder()
             for game in installedgames.get_games():
-                game.icon = icons.choose_icon(game)[0]
+                game.icon = icons.choose_icon(game)
                 steammanager.insert_shortcut(manager, game.name, game.exe, icon=game.icon)
             manager.save()
             for shortcut in manager.shortcuts:
@@ -33,7 +33,7 @@ class TextUI:
 
 
 def run():
-    ui = TextUI()
+    TextUI()
 
 if __name__ == "__main__":
     run()

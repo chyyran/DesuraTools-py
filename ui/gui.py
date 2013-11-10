@@ -6,6 +6,7 @@ import webbrowser
 import urllib
 import socket
 import httplib
+import json
 
 from PySide.QtGui import QMainWindow, QApplication, QListWidgetItem, QAbstractItemView, QPixmap, QMenu
 from PySide.QtGui import QAction, QMessageBox, QCursor
@@ -15,9 +16,8 @@ import icons
 import steammanager
 import installedgames
 import gameslist
-
 from generatehtml import DesuraReport
-from qtui.ui_mainform import Ui_MainWindow
+from ui.ui_mainform import Ui_MainWindow
 from steam import steam_user_manager, steam_shortcut_manager
 
 
@@ -30,26 +30,43 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         boldfont = QApplication.font()
         boldfont.setBold(True)
 
-        self.installAction_action = QAction("Add to Steam", self)
-        self.installAction_action.setFont(boldfont)
-        self.installAction_action.activated.connect(self.process_install_action)
+        self.addToSteam_action = self.action_factory("Add to Steam", self.add_to_steam)
+        self.addToSteam_action.setFont(boldfont)
 
-        self.desuraPage_action = QAction("Open Desura Page", self)
-        self.desuraPage_action.activated.connect(self.open_desura_page)
+        self.installGame_action = self.action_factory("Install", self.install_game)
+        self.installGame_action.setFont(boldfont)
 
-        self.gameContext_menu = QMenu(self)
-        self.gameContext_menu.addAction(self.installAction_action)
-        self.gameContext_menu.addAction(self.desuraPage_action)
+        self.desuraPage_action = self.action_factory("View Profile", self.open_desura_page)
+        self.uninstallGame_action = self.action_factory("Uninstall", self.uninstall_game)
+        self.verifyGame_action = self.action_factory("Verify", self.verify_game)
 
+        self.ownedGames_menu = QMenu(self)
+        self.ownedGames_menu.addActions([
+            self.installGame_action,
+            self.desuraPage_action
+        ])
+
+        self.installedGames_menu = QMenu(self)
+        self.installedGames_menu.addActions([
+            self.addToSteam_action,
+            self.desuraPage_action,
+            self.uninstallGame_action,
+            self.verifyGame_action
+        ])
+
+
+        self.selectAllButton.clicked.connect(self.get_current_list()[0].selectAll)
         self.desuraAccountName_verify.clicked.connect(self.populate_owned_games)
         self.installButton.clicked.connect(self.process_install_button)
         self.generateDesuraReport_action.activated.connect(self.generate_report)
         self.tabWidget.currentChanged.connect(self.swap_tabs)
         self.ownedGames_list.currentItemChanged.connect(self.update_gameinfo)
         self.installedGames_list.currentItemChanged.connect(self.update_gameinfo)
-        self.refreshButton.clicked.connect(self.refresh_lists)
+        self.refreshButton.clicked.connect(self.refresh_list)
+        self.refreshLists_action.activated.connect(self.refresh_all)
+
         self.installedGames_list.customContextMenuRequested.connect(self.show_game_context)
-        self.installedGames_list.doubleClicked.connect(self.process_install_action)
+        self.installedGames_list.doubleClicked.connect(self.add_to_steam)
 
         self.installedGames_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.ownedGames_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
@@ -57,7 +74,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.steamID_input.addItems(steammanager.get_customurls_on_machine())
         self.ownedGames_list.addItem("Verify your Desura Account Name to see your owned games")
 
+        loading_message = QMessageBox()
+        loading_message.setText("Please wait...<br />DesuraTools is loading your owned games")
+        loading_message.setWindowTitle("Loading...")
+        loading_message.setWindowModality(Qt.NonModal)
+        loading_message.setStandardButtons(0)
+        loading_message.setIcon(QMessageBox.Information)
+        loading_message.setWindowFlags(Qt.CustomizeWindowHint|Qt.WindowTitleHint)
+        loading_message.show()
+        self.app.processEvents()
         self.populate_installed_games()
+        self.load_data()
+        loading_message.close()
+        self.raise_()
+
+    def load_data(self):
+        try:
+            with open('desuratools.json', 'r') as savefile:
+                data = json.loads(savefile.read())
+                if data['desuraname'] != "":
+                    self.desuraAccountName_input.setText(data['desuraname'])
+                    self.populate_owned_games()
+                steamid = self.steamID_input.findText(data['steamname'])
+                self.steamID_input.setCurrentIndex(steamid)
+        except:
+           pass
 
     def qpixmap_from_url(self, url):
             img_data = urllib.urlopen(url).read()
@@ -65,9 +106,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             itemicon.loadFromData(img_data)
             return itemicon
 
+    def closeEvent(self, *args, **kwargs):
+        savefile = open('desuratools.json', 'w')
+        savefile.write(
+                json.dumps({
+                'desuraname': self.desuraAccountName_input.text(),
+                'steamname': self.steamID_input.currentText()
+                })
+        )
+        savefile.close()
+
     def generate_report(self):
         username = self.desuraAccountName_input.text()
         webbrowser.open(str(DesuraReport(username)))
+
+    def action_factory(self, text, connect):
+        action = QAction(text, self)
+        action.activated.connect(connect)
+        return action
 
     def populate_qlistwidget(self, game, qlistwidget, iconurls=False):
            if iconurls:
@@ -75,6 +131,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                self.app.processEvents()
            else:
                itemicon = QPixmap(game.icon)
+               self.app.processEvents()
            item = QListWidgetItem(itemicon, game.name, qlistwidget)
            item.setData(Qt.UserRole, game)
            qlistwidget.addItem(item)
@@ -89,7 +146,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except Exception:
             self.statusBar.showMessage("Invalid Desura Name")
         self.ownedGames_list.customContextMenuRequested.connect(self.show_game_context)
-        self.ownedGames_list.doubleClicked.connect(self.process_install_action)
+        self.ownedGames_list.doubleClicked.connect(self.install_game)
+        self.statusBar.showMessage("All owned Desura games loaded for account {0}".format(username))
 
     def populate_installed_games(self):
         for game in installedgames.get_games():
@@ -99,9 +157,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         gamelist = self.get_current_list()
         if gamelist[1] == 0:
             self.installButton.setText("Add Selected to Steam")
-            self.installAction_action.setText("Add to Steam")
         if gamelist[1] == 1:
-            self.installAction_action.setText("Install")
             self.installButton.setText("Install Selected")
         self.gameIcon_label.clear()
         self.gameName_label.clear()
@@ -117,26 +173,45 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if gamelist[1] == 0:
             for item in self.installedGames_list.selectedItems():
                 game = item.data(Qt.UserRole)
-                game.icon = icons.choose_icon(game)[0]
-                steammanager.insert_shortcut(self.get_steam_manager(), game.name, game.exe, game.icon)
-                self.statusBar.showMessage(' '.join(["Added", game.name, 'to Steam']))
+                if steammanager.insert_shortcut(self.get_steam_manager(), game.name, game.exe, icons.choose_icon(game)):
+                    self.statusBar.showMessage("Added {0} to the Steam library".format(game.name))
+                else:
+                    self.statusBar.showMessage("{0} already exists in the Steam library".format(game.name))
             self.get_steam_manager().save()
 
-    def process_install_action(self):
+    def install_game(self):
         gamelist = self.get_current_list()
         game = gamelist[0].currentItem().data(Qt.UserRole)
         if gamelist[1] == 1:
-            self.statusBar.showMessage(' '.join(["Installing", game.name]))
-            game.install()
+                self.statusBar.showMessage(' '.join(["Installing", game.name]))
+                game.install()
+
+    def uninstall_game(self):
+            gamelist = self.get_current_list()
+            game = gamelist[0].currentItem().data(Qt.UserRole)
+            if gamelist[1] == 0:
+                    self.statusBar.showMessage(' '.join(["Uninstalling", game.name]))
+                    game.uninstall()
+
+    def verify_game(self):
+            gamelist = self.get_current_list()
+            game = gamelist[0].currentItem().data(Qt.UserRole)
+            if gamelist[1] == 0:
+                    self.statusBar.showMessage(' '.join(["Verifying", game.name]))
+                    game.verify()
+
+    def add_to_steam(self):
+        gamelist = self.get_current_list()
+        game = gamelist[0].currentItem().data(Qt.UserRole)
         if gamelist[1] == 0:
-            game.icon = icons.choose_icon(game)[0]
-            steammanager.insert_shortcut(self.get_steam_manager(), game.name, game.exe, game.icon)
-            self.statusBar.showMessage(' '.join(["Added", game.name, 'to Steam']))
-        self.get_steam_manager().save()
-        self.statusBar.showMessage("Saved Steam Shortcut File")
+            if steammanager.insert_shortcut(self.get_steam_manager(), game.name, game.exe, icons.choose_icon(game)):
+                self.statusBar.showMessage("Added {0} to the Steam library".format(game.name))
+            else:
+                self.statusBar.showMessage("{0} already exists in the Steam library".format(game.name))
+            self.get_steam_manager().save()
 
     def get_steam_manager(self):
-        steamid = steam_user_manager.steam_id_from_name(self.steamID_input.currentText())
+        steamid = steam_user_manager.communityid32_from_name(self.steamID_input.currentText())
         vdf = steam_user_manager.shortcuts_file_for_user_id(steamid)
         return steam_shortcut_manager.SteamShortcutManager(vdf)
 
@@ -151,7 +226,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if gamelist[1] == 1:
             self.gameIcon_label.setPixmap(self.qpixmap_from_url(game.icon))
 
-    def refresh_lists(self):
+    def refresh_list(self):
         gamelist = self.get_current_list()
         gamelist[0].clear()
         if gamelist[1] == 0:
@@ -159,15 +234,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if gamelist[1] == 1:
             self.populate_owned_games()
 
+    def refresh_all(self):
+        self.installedGames_list.clear()
+        self.ownedGames_list.clear()
+        self.populate_installed_games()
+        self.populate_owned_games()
+
+
     def open_desura_page(self):
         gamelist = self.get_current_list()[0]
-        shortname = gamelist.currentItem().data(Qt.UserRole).shortname
-        webbrowser.open("http://desura.com/games/{0}".format(shortname))
+        game = gamelist.currentItem().data(Qt.UserRole)
+        game.storepage()
 
     def show_game_context(self):
-        gamelist = self.get_current_list()[0]
-        if gamelist.itemAt(gamelist.mapFromGlobal(QCursor.pos())) is gamelist.currentItem():
-                self.gameContext_menu.exec_(QCursor.pos())
+        gamelist = self.get_current_list()
+        if gamelist[0].itemAt(gamelist[0].mapFromGlobal(QCursor.pos())) is gamelist[0].currentItem():
+                if gamelist[1] == 0:
+                    self.installedGames_menu.exec_(QCursor.pos())
+                else:
+                    self.ownedGames_menu.exec_(QCursor.pos())
 
     def get_current_list(self):
         if self.tabWidget.currentIndex() == 0:
@@ -184,11 +269,13 @@ def run():
         app.exec_()
     except (socket.gaierror, httplib.BadStatusLine):
         errorbox = QMessageBox()
+        errorbox.setWindowTitle("Error")
         errorbox.setText("An internet connection is required to use DesuraTools")
         errorbox.setIcon(QMessageBox.Critical)
         errorbox.exec_()
     except Exception, e:
         errorbox = QMessageBox()
+        errorbox.setWindowTitle("Error")
         errorbox.setText("An error occured when starting DesuraTools<br /><i>{0}</i>".format(e.message))
         errorbox.setIcon(QMessageBox.Critical)
         errorbox.exec_()
