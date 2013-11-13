@@ -7,6 +7,7 @@ import urllib
 import socket
 import httplib
 import json
+import logging
 
 from PySide.QtGui import QMainWindow, QApplication, QListWidgetItem, QAbstractItemView, QPixmap, QMenu, QStyle, QDialog
 from PySide.QtGui import QAction, QMessageBox, QCursor
@@ -31,6 +32,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(parent)
         self.app = app
         self.setupUi(self)
+        self.logger = get_logger('desuratools', 'desuratools.log')
+        self.logger.info('Logger Created')
         boldfont = QApplication.font()
         boldfont.setBold(True)
         self.addToSteam_action = self.action_factory("Add to Steam", self.add_to_steam)
@@ -129,11 +132,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.populate_qlistwidget(game, self.ownedGames_list, True)
                 self.loading_dialog.increment(1)
                 self.app.processEvents()
+                self.logger.info("Added Game {0}".format(game.name))
                 self.statusBar.showMessage("Added Game {0}".format(game.name))
         except Exception:
+            self.logger.error("Invalid Desura Name")
             self.statusBar.showMessage("Invalid Desura Name")
         self.ownedGames_list.customContextMenuRequested.connect(self.show_game_context)
         self.ownedGames_list.doubleClicked.connect(self.install_game)
+        self.logger.info("All owned Desura games loaded for account {0}".format(username))
         self.statusBar.showMessage("All owned Desura games loaded for account {0}".format(username))
 
     def populate_installed_games(self):
@@ -173,6 +179,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if game is None:
             game = gamelist[0].currentItem().data(Qt.UserRole)
         if gamelist[1] == 1:
+                self.logger.info(' '.join(["Installing", game.name]))
                 self.statusBar.showMessage(' '.join(["Installing", game.name]))
                 game.install()
 
@@ -180,6 +187,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             gamelist = self.get_current_list()
             game = gamelist[0].currentItem().data(Qt.UserRole)
             if gamelist[1] == 0:
+                    self.logger.info(' '.join(["Uninstalling", game.name]))
                     self.statusBar.showMessage(' '.join(["Uninstalling", game.name]))
                     game.uninstall()
 
@@ -187,6 +195,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             gamelist = self.get_current_list()
             game = gamelist[0].currentItem().data(Qt.UserRole)
             if gamelist[1] == 0:
+                    self.logger.info(' '.join(["Verifying", game.name]))
                     self.statusBar.showMessage(' '.join(["Verifying", game.name]))
                     game.verify()
 
@@ -265,16 +274,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             result = ask_close_steam.exec_()
 
             if result == QMessageBox.AcceptRole:
+                self.logger.info("Closing Steam")
                 self.statusBar.showMessage("Closing Steam")
                 windows.close_steam()
                 return True
             else:
+                self.logger.error("Could not add game to Steam - Steam still running")
                 self.statusBar.showMessage("Add to Steam cancelled")
                 return False
         else:
             return True
 
     def generate_report(self):
+        self.logger.error("Generating Report")
+        self.statusBar.showMessage("Generating Report")
         username = self.desuraAccountName_input.text()
         webbrowser.open(str(DesuraReport(username)))
 
@@ -282,6 +295,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         action = QAction(text, self)
         action.activated.connect(connect)
         return action
+
 
 class ProgressBarDialog(QDialog, Ui_ProgressBar):
     def __init__(self, parent=None):
@@ -305,6 +319,20 @@ class ProgressBarDialog(QDialog, Ui_ProgressBar):
     def increment(self, increment):
         value = self.progressBar.value()
         self.progressBar.setValue(value+increment)
+
+
+def get_logger(name, fh):
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+    fh = logging.FileHandler(fh)
+    sh = logging.StreamHandler()
+    formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s')
+    fh.setFormatter(formatter)
+    sh.setFormatter(formatter)
+    logger.addHandler(fh)
+    logger.addHandler(sh)
+    return logger
+
 
 def run():
     app = QApplication(sys.argv)

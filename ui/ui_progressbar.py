@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'D:\Coding\Python\DesuraTools\ui\progressbar.ui'
 #
-# Created: Mon Nov 11 23:44:24 2013
+# Created: Tue Nov 12 20:24:04 2013
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,14 @@ from PySide import QtCore, QtGui
 class Ui_ProgressBar(object):
     def setupUi(self, ProgressBar):
         ProgressBar.setObjectName("ProgressBar")
-        ProgressBar.resize(259, 111)
+        ProgressBar.resize(234, 111)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(ProgressBar.sizePolicy().hasHeightForWidth())
+        ProgressBar.setSizePolicy(sizePolicy)
+        ProgressBar.setMinimumSize(QtCore.QSize(234, 111))
+        ProgressBar.setMaximumSize(QtCore.QSize(234, 111))
         ProgressBar.setAutoFillBackground(True)
         ProgressBar.setStyleSheet("")
         self.gridLayout = QtGui.QGridLayout(ProgressBar)
