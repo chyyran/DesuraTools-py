@@ -31,7 +31,6 @@ class TextUI:
                 print shortcut.appname
 
 
-
 def run():
     TextUI()
 

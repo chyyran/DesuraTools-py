@@ -8,7 +8,7 @@ import socket
 import httplib
 import json
 
-from PySide.QtGui import QMainWindow, QApplication, QListWidgetItem, QAbstractItemView, QPixmap, QMenu
+from PySide.QtGui import QMainWindow, QApplication, QListWidgetItem, QAbstractItemView, QPixmap, QMenu, QStyle, QDialog
 from PySide.QtGui import QAction, QMessageBox, QCursor
 from PySide.QtCore import Qt
 
@@ -16,8 +16,12 @@ import icons
 import steammanager
 import installedgames
 import gameslist
+import windows
+
 from generatehtml import DesuraReport
 from ui.ui_mainform import Ui_MainWindow
+from ui.ui_progressbar import Ui_ProgressBar
+
 from steam import steam_user_manager, steam_shortcut_manager
 
 
@@ -29,7 +33,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         boldfont = QApplication.font()
         boldfont.setBold(True)
-
         self.addToSteam_action = self.action_factory("Add to Steam", self.add_to_steam)
         self.addToSteam_action.setFont(boldfont)
 
@@ -54,8 +57,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.verifyGame_action
         ])
 
-
-        self.selectAllButton.clicked.connect(self.get_current_list()[0].selectAll)
+        self.selectAllButton.clicked.connect(self.select_all_games)
         self.desuraAccountName_verify.clicked.connect(self.populate_owned_games)
         self.installButton.clicked.connect(self.process_install_button)
         self.generateDesuraReport_action.activated.connect(self.generate_report)
@@ -74,18 +76,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.steamID_input.addItems(steammanager.get_customurls_on_machine())
         self.ownedGames_list.addItem("Verify your Desura Account Name to see your owned games")
 
-        loading_message = QMessageBox()
-        loading_message.setText("Please wait...<br />DesuraTools is loading your owned games")
-        loading_message.setWindowTitle("Loading...")
-        loading_message.setWindowModality(Qt.NonModal)
-        loading_message.setStandardButtons(0)
-        loading_message.setIcon(QMessageBox.Information)
-        loading_message.setWindowFlags(Qt.CustomizeWindowHint|Qt.WindowTitleHint)
-        loading_message.show()
+        self.loading_dialog = ProgressBarDialog()
+        self.loading_dialog.show()
         self.app.processEvents()
         self.populate_installed_games()
         self.load_data()
-        loading_message.close()
+        self.loading_dialog.close()
         self.raise_()
 
     def load_data(self):
@@ -100,12 +96,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except:
            pass
 
-    def qpixmap_from_url(self, url):
-            img_data = urllib.urlopen(url).read()
-            itemicon = QPixmap()
-            itemicon.loadFromData(img_data)
-            return itemicon
-
     def closeEvent(self, *args, **kwargs):
         savefile = open('desuratools.json', 'w')
         savefile.write(
@@ -115,15 +105,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 })
         )
         savefile.close()
-
-    def generate_report(self):
-        username = self.desuraAccountName_input.text()
-        webbrowser.open(str(DesuraReport(username)))
-
-    def action_factory(self, text, connect):
-        action = QAction(text, self)
-        action.activated.connect(connect)
-        return action
 
     def populate_qlistwidget(self, game, qlistwidget, iconurls=False):
            if iconurls:
@@ -140,8 +121,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         username = self.desuraAccountName_input.text()
         self.ownedGames_list.clear()
         try:
+            self.loading_dialog.setAccount(username)
+            self.app.processEvents()
+            self.loading_dialog.setMaximum(len(gameslist.GamesList(username).get_games()))
+            self.app.processEvents()
             for game in gameslist.GamesList(username).get_games():
                 self.populate_qlistwidget(game, self.ownedGames_list, True)
+                self.loading_dialog.increment(1)
+                self.app.processEvents()
                 self.statusBar.showMessage("Added Game {0}".format(game.name))
         except Exception:
             self.statusBar.showMessage("Invalid Desura Name")
@@ -163,25 +150,28 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.gameName_label.clear()
         self.gameShortName_label.clear()
 
+    def show_game_context(self):
+        gamelist = self.get_current_list()
+        if gamelist[0].itemAt(gamelist[0].mapFromGlobal(QCursor.pos())) is gamelist[0].currentItem():
+                if gamelist[1] == 0:
+                    self.installedGames_menu.exec_(QCursor.pos())
+                else:
+                    self.ownedGames_menu.exec_(QCursor.pos())
+
     def process_install_button(self):
         gamelist = self.get_current_list()
         if gamelist[1] == 1:
             for item in self.ownedGames_list.selectedItems():
-                self.statusBar.showMessage(' '.join(["Installing", game.name]))
-                game = item.data(Qt.UserRole)
-                game.install()
+                self.install_game(game=item.data(Qt.UserRole))
         if gamelist[1] == 0:
             for item in self.installedGames_list.selectedItems():
-                game = item.data(Qt.UserRole)
-                if steammanager.insert_shortcut(self.get_steam_manager(), game.name, game.exe, icons.choose_icon(game)):
-                    self.statusBar.showMessage("Added {0} to the Steam library".format(game.name))
-                else:
-                    self.statusBar.showMessage("{0} already exists in the Steam library".format(game.name))
+                self.add_to_steam(game=item.data(Qt.UserRole))
             self.get_steam_manager().save()
 
-    def install_game(self):
+    def install_game(self, game=None):
         gamelist = self.get_current_list()
-        game = gamelist[0].currentItem().data(Qt.UserRole)
+        if game is None:
+            game = gamelist[0].currentItem().data(Qt.UserRole)
         if gamelist[1] == 1:
                 self.statusBar.showMessage(' '.join(["Installing", game.name]))
                 game.install()
@@ -200,9 +190,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.statusBar.showMessage(' '.join(["Verifying", game.name]))
                     game.verify()
 
-    def add_to_steam(self):
+    def add_to_steam(self, game=None):
+        if not self.check_if_steam_running():
+            return
         gamelist = self.get_current_list()
-        game = gamelist[0].currentItem().data(Qt.UserRole)
+        if game is None:
+            game = gamelist[0].currentItem().data(Qt.UserRole)
         if gamelist[1] == 0:
             if steammanager.insert_shortcut(self.get_steam_manager(), game.name, game.exe, icons.choose_icon(game)):
                 self.statusBar.showMessage("Added {0} to the Steam library".format(game.name))
@@ -240,19 +233,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.populate_installed_games()
         self.populate_owned_games()
 
+    def select_all_games(self):
+        self.get_current_list()[0].selectAll()
 
     def open_desura_page(self):
         gamelist = self.get_current_list()[0]
         game = gamelist.currentItem().data(Qt.UserRole)
         game.storepage()
-
-    def show_game_context(self):
-        gamelist = self.get_current_list()
-        if gamelist[0].itemAt(gamelist[0].mapFromGlobal(QCursor.pos())) is gamelist[0].currentItem():
-                if gamelist[1] == 0:
-                    self.installedGames_menu.exec_(QCursor.pos())
-                else:
-                    self.ownedGames_menu.exec_(QCursor.pos())
 
     def get_current_list(self):
         if self.tabWidget.currentIndex() == 0:
@@ -260,6 +247,64 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.tabWidget.currentIndex() == 1:
             return self.ownedGames_list, 1
 
+    def qpixmap_from_url(self, url):
+            img_data = urllib.urlopen(url).read()
+            itemicon = QPixmap()
+            itemicon.loadFromData(img_data)
+            return itemicon
+
+    def check_if_steam_running(self):
+        if windows.steam_running():
+            self.statusBar.showMessage("Steam is currently running")
+            ask_close_steam = QMessageBox()
+            ask_close_steam.setText("<b>Steam is currently running</b><br />Please close Steam before adding a game")
+            ask_close_steam.setIcon(QMessageBox.Warning)
+            ask_close_steam.setStandardButtons(QMessageBox.Cancel)
+            ask_close_steam.setWindowTitle("Close Steam before continuing")
+            ask_close_steam.addButton("Close Steam", QMessageBox.AcceptRole)
+            result = ask_close_steam.exec_()
+
+            if result == QMessageBox.AcceptRole:
+                self.statusBar.showMessage("Closing Steam")
+                windows.close_steam()
+                return True
+            else:
+                self.statusBar.showMessage("Add to Steam cancelled")
+                return False
+        else:
+            return True
+
+    def generate_report(self):
+        username = self.desuraAccountName_input.text()
+        webbrowser.open(str(DesuraReport(username)))
+
+    def action_factory(self, text, connect):
+        action = QAction(text, self)
+        action.activated.connect(connect)
+        return action
+
+class ProgressBarDialog(QDialog, Ui_ProgressBar):
+    def __init__(self, parent=None):
+        super(ProgressBarDialog, self).__init__(parent)
+        self.setupUi(self)
+        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint)
+        self.iconLabel.setPixmap(QStyle.standardPixmap(self.style(), QStyle.SP_MessageBoxInformation))
+
+    def setText(self, text):
+        self.textLabel.setText(text)
+
+    def setInformativeText(self, text):
+        self.infoTextLabel.setText(text)
+
+    def setMaximum(self, maximum):
+        self.progressBar.setMaximum(maximum)
+
+    def setAccount(self, account):
+        self.accountLabel.setText("for account {0}".format(account))
+
+    def increment(self, increment):
+        value = self.progressBar.value()
+        self.progressBar.setValue(value+increment)
 
 def run():
     app = QApplication(sys.argv)
@@ -279,5 +324,6 @@ def run():
         errorbox.setText("An error occured when starting DesuraTools<br /><i>{0}</i>".format(e.message))
         errorbox.setIcon(QMessageBox.Critical)
         errorbox.exec_()
+
 if __name__ == '__main__':
     run()

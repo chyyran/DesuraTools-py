@@ -2,6 +2,7 @@
 __author__ = 'ron975'
 import re
 import urllib2
+import htmlentitydefs
 
 from desuragame import DesuraGame
 
@@ -55,8 +56,29 @@ class GamesList:
             }
             #Iterate over all the games and group together information for a game
             for match in range(len(matches["shortname"])):
-                games.append(DesuraGame(matches["shortname"][match], matches["name"][match], matches["icon"][match][0]))
+                games.append(DesuraGame(matches["shortname"][match], unescape(matches["name"][match]), matches["icon"][match][0]))
         return games
 
+
+def unescape(text):
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # character reference
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError:
+                pass
+        else:
+            # named entity
+            try:
+                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+            except KeyError:
+                pass
+        return text # leave as is
+    return re.sub("&#?\w+;", fixup, text)
 
 class PrivateProfileError(Exception): pass

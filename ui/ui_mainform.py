@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'D:\Coding\Python\DesuraTools\qtui\mainform.ui'
+# Form implementation generated from reading ui file 'D:\Coding\Python\DesuraTools\ui\mainform.ui'
 #
-# Created: Sat Nov 09 22:19:46 2013
+# Created: Mon Nov 11 15:08:48 2013
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
