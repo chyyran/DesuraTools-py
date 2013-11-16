@@ -10,7 +10,7 @@ import json
 import logging
 
 from PySide.QtGui import QMainWindow, QApplication, QListWidgetItem, QAbstractItemView, QPixmap, QMenu, QStyle, QDialog
-from PySide.QtGui import QAction, QMessageBox, QCursor
+from PySide.QtGui import QAction, QMessageBox, QCursor, QIcon
 from PySide.QtCore import Qt
 
 import icons

@@ -31,6 +31,10 @@
   <property name="windowTitle">
    <string>Loading...</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../icons/desuratools_256.png</normaloff>../icons/desuratools_256.png</iconset>
+  </property>
   <property name="autoFillBackground">
    <bool>true</bool>
   </property>

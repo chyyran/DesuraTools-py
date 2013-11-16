@@ -42,3 +42,4 @@ def steam_running():
 
 def close_steam():
     subprocess.call("taskkill /im steam.exe /f /t")
+
