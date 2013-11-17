@@ -1,5 +1,5 @@
 # -*- mode: python -*-
-a = Analysis(['desuratools.py', 'build.spec'],
+a = Analysis(['desuratools.py'],
              pathex=['D:\\Coding\\Python\\DesuraTools'],
              hiddenimports=[],
              hookspath=None,
@@ -13,5 +13,5 @@ exe = EXE(pyz,
           name='desuratools.exe',
           debug=False,
           strip=None,
-          upx=True,
-          console=False )
+          upx=False,
+          console=False , icon='icons\\desuratools.ico')
