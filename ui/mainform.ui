@@ -33,7 +33,7 @@
       <item>
        <widget class="QLabel" name="desuraAccountName_label">
         <property name="text">
-         <string>Desura Account Name</string>
+         <string>Desura Username</string>
         </property>
        </widget>
       </item>

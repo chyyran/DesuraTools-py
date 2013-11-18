@@ -77,7 +77,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ownedGames_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
         self.steamID_input.addItems(steammanager.get_customurls_on_machine())
-        self.ownedGames_list.addItem("Verify your Desura Account Name to see your owned games")
+        self.ownedGames_list.addItem("Verify your Desura username to see your owned games")
 
         self.loading_dialog = ProgressBarDialog()
         self.loading_dialog.show()
