@@ -134,6 +134,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.app.processEvents()
                 self.logger.info("Added Game {0}".format(game.name))
                 self.statusBar.showMessage("Added Game {0}".format(game.name))
+        except gameslist.PrivateProfileError:
+            self.logger.error("Private Desura Profile")
+            self.statusBar.showMessage("Private Desura Profile not supported")
+            errorbox = QMessageBox()
+            errorbox.setWindowTitle("Error")
+            errorbox.setText("The Desura Profile {0} is set to Private. <br/>DesuraTools works only with public Desura Profiles.".format(username))
+            errorbox.setIcon(QMessageBox.Critical)
+            errorbox.exec_()
         except Exception:
             self.logger.error("Invalid Desura Name")
             self.statusBar.showMessage("Invalid Desura Name")
