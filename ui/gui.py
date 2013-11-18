@@ -137,11 +137,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         except gameslist.PrivateProfileError:
             self.logger.error("Private Desura Profile")
             self.statusBar.showMessage("Private Desura Profile not supported")
-            errorbox = QMessageBox()
-            errorbox.setWindowTitle("Error")
-            errorbox.setText("The Desura Profile {0} is set to Private. <br/>DesuraTools works only with public Desura Profiles.".format(username))
-            errorbox.setIcon(QMessageBox.Critical)
-            errorbox.exec_()
+
+            error_message(
+                "The Desura Profile {0} is set to Private. <br/>DesuraTools works only with public Desura Profiles."
+                .format(username)
+            ).exec_()
+
         except Exception:
             self.logger.error("Invalid Desura Name")
             self.statusBar.showMessage("Invalid Desura Name")
@@ -264,12 +265,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.tabWidget.currentIndex() == 1:
             return self.ownedGames_list, 1
 
-    def qpixmap_from_url(self, url):
-            img_data = urllib.urlopen(url).read()
-            itemicon = QPixmap()
-            itemicon.loadFromData(img_data)
-            return itemicon
-
     def check_if_steam_running(self):
         if windows.steam_running():
             self.statusBar.showMessage("Steam is currently running")
@@ -294,7 +289,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return True
 
     def generate_report(self):
-        self.logger.error("Generating Report")
+        self.logger.info("Generating Report")
         self.statusBar.showMessage("Generating Report")
         username = self.desuraAccountName_input.text()
         webbrowser.open(str(DesuraReport(username)))
@@ -303,6 +298,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         action = QAction(text, self)
         action.activated.connect(connect)
         return action
+
+    @staticmethod
+    def qpixmap_from_url(url):
+            img_data = urllib.urlopen(url).read()
+            itemicon = QPixmap()
+            itemicon.loadFromData(img_data)
+            return itemicon
 
 
 class ProgressBarDialog(QDialog, Ui_ProgressBar):
@@ -341,6 +343,15 @@ def get_logger(name, fh):
     logger.addHandler(sh)
     return logger
 
+def error_message(text):
+    errorbox = QMessageBox()
+    icon = QIcon()
+    icon.addPixmap(QPixmap("../icons/desuratools_256.png"), QIcon.Normal, QIcon.Off)
+    errorbox.setWindowIcon(icon)
+    errorbox.setWindowTitle("Error")
+    errorbox.setText(text)
+    errorbox.setIcon(QMessageBox.Critical)
+    return errorbox
 
 def run():
     app = QApplication(sys.argv)
@@ -349,17 +360,9 @@ def run():
         frame.show()
         app.exec_()
     except (socket.gaierror, httplib.BadStatusLine):
-        errorbox = QMessageBox()
-        errorbox.setWindowTitle("Error")
-        errorbox.setText("An internet connection is required to use DesuraTools")
-        errorbox.setIcon(QMessageBox.Critical)
-        errorbox.exec_()
+        error_message("An internet connection is required to use DesuraTools").exec_()
     except Exception, e:
-        errorbox = QMessageBox()
-        errorbox.setWindowTitle("Error")
-        errorbox.setText("An error occured when starting DesuraTools<br /><i>{0}</i>".format(e.message))
-        errorbox.setIcon(QMessageBox.Critical)
-        errorbox.exec_()
+        error_message("An error occured when starting DesuraTools<br /><i>{0}</i>".format(e.message)).exec_()
 
 if __name__ == '__main__':
     run()
