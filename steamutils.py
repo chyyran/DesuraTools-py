@@ -6,11 +6,15 @@ import steam.steam_user_manager as usermanager
 
 
 def insert_shortcut(manager, name, exe, icon=""):
+    manager.add_shortcut(name, "\""+exe+"\"", "\""+os.path.dirname(exe)+"\"", icon=icon)
+    manager.save()
+
+
+def shortcut_exists(manager, name):
     for shortcut in manager.shortcuts:
         if shortcut.appname == name:
-            return False
-    manager.add_shortcut(name, "\""+exe+"\"", "\""+os.path.dirname(exe)+"\"", icon=icon)
-    return True
+            return True
+    return False
 
 
 def associate_ids_with_users():
@@ -18,6 +22,7 @@ def associate_ids_with_users():
     for id in usermanager.user_ids_on_this_machine():
         steamusers.append({'steamid32': id, 'customurl': usermanager.name_from_communityid32(id)})
     return steamusers
+
 
 def get_customurls_on_machine():
     steamusers = []

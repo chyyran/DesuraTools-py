@@ -14,7 +14,7 @@ from PySide.QtGui import QAction, QMessageBox, QCursor, QIcon
 from PySide.QtCore import Qt
 
 import icons
-import steammanager
+import steamutils
 import installedgames
 import gameslist
 import windows
@@ -65,8 +65,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.installButton.clicked.connect(self.process_install_button)
         self.generateDesuraReport_action.activated.connect(self.generate_report)
         self.tabWidget.currentChanged.connect(self.swap_tabs)
-        self.ownedGames_list.currentItemChanged.connect(self.update_gameinfo)
-        self.installedGames_list.currentItemChanged.connect(self.update_gameinfo)
+        self.ownedGames_list.itemSelectionChanged.connect(self.update_gameinfo)
+        self.installedGames_list.itemSelectionChanged.connect(self.update_gameinfo)
         self.refreshButton.clicked.connect(self.refresh_list)
         self.refreshLists_action.activated.connect(self.refresh_all)
 
@@ -76,7 +76,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.installedGames_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.ownedGames_list.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
-        self.steamID_input.addItems(steammanager.get_customurls_on_machine())
+        self.steamID_input.addItems(steamutils.get_customurls_on_machine())
         self.ownedGames_list.addItem("Verify your Desura username to see your owned games")
 
         self.loading_dialog = ProgressBarDialog()
@@ -176,50 +176,62 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def process_install_button(self):
         gamelist = self.get_current_list()
         if gamelist[1] == 1:
-            for item in self.ownedGames_list.selectedItems():
-                self.install_game(game=item.data(Qt.UserRole))
+            self.install_game()
         if gamelist[1] == 0:
-            for item in self.installedGames_list.selectedItems():
-                self.add_to_steam(game=item.data(Qt.UserRole))
+            self.add_to_steam()
             self.get_steam_manager().save()
 
-    def install_game(self, game=None):
+    def install_game(self):
         gamelist = self.get_current_list()
-        if game is None:
-            game = gamelist[0].currentItem().data(Qt.UserRole)
         if gamelist[1] == 1:
+            for item in gamelist[0].selectedItems():
+                game = item.data(Qt.UserRole)
                 self.logger.info(' '.join(["Installing", game.name]))
                 self.statusBar.showMessage(' '.join(["Installing", game.name]))
                 game.install()
 
     def uninstall_game(self):
-            gamelist = self.get_current_list()
-            game = gamelist[0].currentItem().data(Qt.UserRole)
-            if gamelist[1] == 0:
-                    self.logger.info(' '.join(["Uninstalling", game.name]))
-                    self.statusBar.showMessage(' '.join(["Uninstalling", game.name]))
-                    game.uninstall()
+        gamelist = self.get_current_list()
+        if gamelist[1] == 0:
+            if len(gamelist[0].selectedItems()) > 1:
+                confirm_uninstall = user_choice(
+                    "Are you sure you want to uninstall {0} games?".format(len(gamelist[0].selectedItems())),
+                    "Confirm batch uninstallation",
+                    QMessageBox.Information,
+                    acceptbutton="Uninstall"
+                )
+                result = confirm_uninstall.exec_()
+                if result is not QMessageBox.AcceptRole:
+                    self.logger.info("Uninstall {0} games canceled".format(len(gamelist[0].selectedItems())))
+                    self.statusBar.showMessage("Uninstall {0} games canceled".format(len(gamelist[0].selectedItems())))
+                    return
+            for item in gamelist[0].selectedItems():
+                game = item.data(Qt.UserRole)
+                self.logger.info(' '.join(["Uninstalling", game.name]))
+                self.statusBar.showMessage(' '.join(["Uninstalling", game.name]))
+                game.uninstall()
 
     def verify_game(self):
-            gamelist = self.get_current_list()
-            game = gamelist[0].currentItem().data(Qt.UserRole)
-            if gamelist[1] == 0:
-                    self.logger.info(' '.join(["Verifying", game.name]))
-                    self.statusBar.showMessage(' '.join(["Verifying", game.name]))
-                    game.verify()
+        gamelist = self.get_current_list()
+        if gamelist[1] == 0:
+            for item in gamelist[0].selectedItems():
+                game = item.data(Qt.UserRole)
+                self.logger.info(' '.join(["Verifying", game.name]))
+                self.statusBar.showMessage(' '.join(["Verifying", game.name]))
+                game.verify()
 
-    def add_to_steam(self, game=None):
+    def add_to_steam(self):
         if not self.check_if_steam_running():
             return
         gamelist = self.get_current_list()
-        if game is None:
-            game = gamelist[0].currentItem().data(Qt.UserRole)
         if gamelist[1] == 0:
-            if steammanager.insert_shortcut(self.get_steam_manager(), game.name, game.exe, icons.choose_icon(game)):
-                self.statusBar.showMessage("Added {0} to the Steam library".format(game.name))
-            else:
-                self.statusBar.showMessage("{0} already exists in the Steam library".format(game.name))
-            self.get_steam_manager().save()
+            for item in gamelist[0].selectedItems():
+                game = item.data(Qt.UserRole)
+                if not steamutils.shortcut_exists(self.get_steam_manager(), game.name):
+                    steamutils.insert_shortcut(self.get_steam_manager(), game.name, game.exe, icons.choose_icon(game))
+                    self.statusBar.showMessage("Added {0} to the Steam library".format(game.name))
+                else:
+                    self.statusBar.showMessage("{0} already exists in the Steam library".format(game.name))
 
     def get_steam_manager(self):
         steamid = steam_user_manager.communityid32_from_name(self.steamID_input.currentText())
@@ -228,14 +240,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def update_gameinfo(self):
         gamelist = self.get_current_list()
-        game = gamelist[0].currentItem().data(Qt.UserRole)
-        self.gameName_label.setText(game.name)
-        self.gameShortName_label.setText(game.shortname)
+        if len(gamelist[0].selectedItems()) == 1:
+            game = gamelist[0].currentItem().data(Qt.UserRole)
+            self.gameName_label.setText(game.name)
+            self.gameShortName_label.setText(game.shortname)
 
-        if gamelist[1] == 0:
-            self.gameIcon_label.setPixmap(QPixmap(game.icon))
-        if gamelist[1] == 1:
-            self.gameIcon_label.setPixmap(self.qpixmap_from_url(game.icon))
+            if gamelist[1] == 0:
+                self.gameIcon_label.setPixmap(QPixmap(game.icon))
+            if gamelist[1] == 1:
+                self.gameIcon_label.setPixmap(self.qpixmap_from_url(game.icon))
+        else:
+            self.gameName_label.setText("{0} Items Selected".format(str(len(gamelist[0].selectedItems()))))
+            self.gameIcon_label.clear()
+            self.gameShortName_label.clear()
 
     def refresh_list(self):
         gamelist = self.get_current_list()
@@ -255,9 +272,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.get_current_list()[0].selectAll()
 
     def open_desura_page(self):
-        gamelist = self.get_current_list()[0]
-        game = gamelist.currentItem().data(Qt.UserRole)
-        game.storepage()
+        gamelist = self.get_current_list()
+        for item in gamelist[0].selectedItems():
+            game = item.data(Qt.UserRole)
+            game.storepage()
 
     def get_current_list(self):
         if self.tabWidget.currentIndex() == 0:
@@ -268,12 +286,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def check_if_steam_running(self):
         if windows.steam_running():
             self.statusBar.showMessage("Steam is currently running")
-            ask_close_steam = QMessageBox()
-            ask_close_steam.setText("<b>Steam is currently running</b><br />Please close Steam before adding a game")
-            ask_close_steam.setIcon(QMessageBox.Warning)
-            ask_close_steam.setStandardButtons(QMessageBox.Cancel)
-            ask_close_steam.setWindowTitle("Close Steam before continuing")
-            ask_close_steam.addButton("Close Steam", QMessageBox.AcceptRole)
+
+            ask_close_steam = user_choice(
+                "<b>Steam is currently running</b><br />Please close Steam before adding a game",
+                "Close Steam before continuing",
+                QMessageBox.Warning,
+                acceptbutton="Close Steam"
+                )
             result = ask_close_steam.exec_()
 
             if result == QMessageBox.AcceptRole:
@@ -305,7 +324,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             itemicon = QPixmap()
             itemicon.loadFromData(img_data)
             return itemicon
-
 
 class ProgressBarDialog(QDialog, Ui_ProgressBar):
     def __init__(self, parent=None):
@@ -343,15 +361,25 @@ def get_logger(name, fh):
     logger.addHandler(sh)
     return logger
 
+
 def error_message(text):
     errorbox = QMessageBox()
-    icon = QIcon()
-    icon.addPixmap(QPixmap("../icons/desuratools_256.png"), QIcon.Normal, QIcon.Off)
-    errorbox.setWindowIcon(icon)
+    errorbox.setWindowIcon(QPixmap("../icons/desuratools_256.png"))
     errorbox.setWindowTitle("Error")
     errorbox.setText(text)
     errorbox.setIcon(QMessageBox.Critical)
     return errorbox
+
+
+def user_choice(text, windowtitle, icon, acceptbutton="OK"):
+    choice_dialog = QMessageBox()
+    choice_dialog.setWindowIcon(QPixmap("../icons/desuratools_256.png"))
+    choice_dialog.setText(text)
+    choice_dialog.setIcon(icon)
+    choice_dialog.setStandardButtons(QMessageBox.Cancel)
+    choice_dialog.setWindowTitle(windowtitle)
+    choice_dialog.addButton(acceptbutton, QMessageBox.AcceptRole)
+    return choice_dialog
 
 def run():
     app = QApplication(sys.argv)

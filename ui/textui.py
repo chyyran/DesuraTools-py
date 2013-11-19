@@ -5,7 +5,7 @@ import webbrowser
 from generatehtml import DesuraReport
 import icons
 import installedgames
-import steammanager
+import steam
 
 class TextUI:
     def __init__(self):
@@ -22,10 +22,10 @@ class TextUI:
         if options == "steam":
             print "Adding games to steam"
             print "Which is your Steam Account?"
-            manager = steammanager.choose_userdata_folder()
+            manager = steam.choose_userdata_folder()
             for game in installedgames.get_games():
                 game.icon = icons.choose_icon(game)
-                steammanager.insert_shortcut(manager, game.name, game.exe, icon=game.icon)
+                steam.insert_shortcut(manager, game.name, game.exe, icon=game.icon)
             manager.save()
             for shortcut in manager.shortcuts:
                 print shortcut.appname
