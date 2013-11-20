@@ -35,9 +35,12 @@ nosetests.xml
 .project
 .pydevproject
 
-.html
+#PyCharm
 .idea/
 
-.json
+#Build and testing
+*.html
+*.json
+*.log
 build/
 dist/
