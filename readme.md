@@ -20,7 +20,7 @@ Features
 
 Building
 --------
-Ensure that the [required dependencies](#Dependencies) are installed. Simply run build_win.py to build the program.
+Ensure that the [required dependencies](#dependencies) are installed. Simply run build_win.py to build the program.
 
 Dependencies
 ------------
