@@ -136,14 +136,14 @@
         <item>
          <widget class="QLabel" name="infoTextLabel">
           <property name="text">
-           <string>DesuraTools is loading owned games</string>
+           <string>DesuraTools is loading games owned</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="accountLabel">
           <property name="text">
-           <string>for account _account_</string>
+           <string>_adverb_ account _account_</string>
           </property>
          </widget>
         </item>

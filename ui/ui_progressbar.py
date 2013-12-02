@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'D:\Coding\Python\DesuraTools\ui\progressbar.ui'
 #
-# Created: Fri Nov 15 20:06:24 2013
+# Created: Sun Dec 01 19:39:05 2013
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -89,7 +89,7 @@ class Ui_ProgressBar(object):
         ProgressBar.setWindowTitle(QtGui.QApplication.translate("ProgressBar", "Loading...", None, QtGui.QApplication.UnicodeUTF8))
         self.progressBar.setFormat(QtGui.QApplication.translate("ProgressBar", "%p%", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel.setText(QtGui.QApplication.translate("ProgressBar", "Please wait..", None, QtGui.QApplication.UnicodeUTF8))
-        self.infoTextLabel.setText(QtGui.QApplication.translate("ProgressBar", "DesuraTools is loading owned games", None, QtGui.QApplication.UnicodeUTF8))
-        self.accountLabel.setText(QtGui.QApplication.translate("ProgressBar", "for account _account_", None, QtGui.QApplication.UnicodeUTF8))
+        self.infoTextLabel.setText(QtGui.QApplication.translate("ProgressBar", "DesuraTools is loading games owned", None, QtGui.QApplication.UnicodeUTF8))
+        self.accountLabel.setText(QtGui.QApplication.translate("ProgressBar", "_adverb_ account _account_", None, QtGui.QApplication.UnicodeUTF8))
         self.iconLabel.setText(QtGui.QApplication.translate("ProgressBar", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
 

@@ -17,18 +17,18 @@ class DesuraGame:
 
     def install(self):
         print "Installing", self.shortname
-        webbrowser.open("desura://install/games/{0}/".format(self.shortname))
+        webbrowser.open("desura://install/games/{0}/".format(self.shortname), 1)
 
     def uninstall(self):
         print "Uninstalling", self.shortname
-        webbrowser.open("desura://uninstall/games/{0}/".format(self.shortname))
+        webbrowser.open("desura://uninstall/games/{0}/".format(self.shortname), 1)
 
     def verify(self):
         print "Verifying", self.shortname
-        webbrowser.open("desura://verify/games/{0}/".format(self.shortname))
+        webbrowser.open("desura://verify/games/{0}/".format(self.shortname), 1)
 
     def storepage(self):
-        webbrowser.open("http://desura.com/games/{0}".format(self.shortname))
+        webbrowser.open("http://desura.com/games/{0}".format(self.shortname), 2)
 
 class InstalledGame(DesuraGame):
     def __init__(self, shortname, name, exe, icon):

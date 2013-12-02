@@ -84,12 +84,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.app.processEvents()
         self.populate_installed_games()
         self.load_data()
+        self.loading_dialog.setText("<b>Verify your identity</b>")
+        self.loading_dialog.setInformativeText("Sign in to Desura to continue")
+        self.loading_dialog.setWindowTitle("Sign into Desura to continue")
+        self.loading_dialog.setAccount(self.desuraAccountName_input.text(), "with")
+        self.app.processEvents()
+        self.wait_for_desura()
         self.loading_dialog.close()
         self.raise_()
 
     def load_data(self):
         try:
-            with open('desuratools.json', 'r') as savefile:
+            with open('../desuratools.json', 'r') as savefile:
                 data = json.loads(savefile.read())
                 if data['desuraname'] != "":
                     self.desuraAccountName_input.setText(data['desuraname'])
@@ -100,7 +106,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
            pass
 
     def closeEvent(self, *args, **kwargs):
-        savefile = open('desuratools.json', 'w')
+        self.logger.info("Saving to file")
+        savefile = open('../desuratools.json', 'w')
         savefile.write(
                 json.dumps({
                 'desuraname': self.desuraAccountName_input.text(),
@@ -182,6 +189,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.get_steam_manager().save()
 
     def install_game(self):
+        self.statusBar.showMessage("Waiting for Desura")
+        self.wait_for_desura()
         gamelist = self.get_current_list()
         if gamelist[1] == 1:
             for item in gamelist[0].selectedItems():
@@ -191,6 +200,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 game.install()
 
     def uninstall_game(self):
+        self.statusBar.showMessage("Waiting for Desura")
+        self.wait_for_desura()
         gamelist = self.get_current_list()
         if gamelist[1] == 0:
             if len(gamelist[0].selectedItems()) > 1:
@@ -212,6 +223,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 game.uninstall()
 
     def verify_game(self):
+        self.statusBar.showMessage("Waiting for Desura")
+        self.wait_for_desura()
         gamelist = self.get_current_list()
         if gamelist[1] == 0:
             for item in gamelist[0].selectedItems():
@@ -307,6 +320,25 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             return True
 
+    @classmethod
+    def start_desura(cls):
+        try:
+            windows.start_desura()
+        except WindowsError:
+            error_message("Desura has not been installed or is not installed correctly. <br />"
+                            "Please install Desura before using DesuraTools").exec_()
+            webbrowser.open("http://www.desura.com/install", 2)
+        except Exception, e:
+            error_message("Error occured when launching Desura <br /> {0}".format(e.message))
+
+    def wait_for_desura(self, username=None):
+        if username is None:
+            username = self.desuraAccountName_input.text()
+        if not windows.desura_running(username):
+            self.start_desura()
+            while not windows.desura_running(username):
+                self.app.processEvents()
+
     def generate_report(self):
         self.logger.info("Generating Report")
         self.statusBar.showMessage("Generating Report")
@@ -341,8 +373,8 @@ class ProgressBarDialog(QDialog, Ui_ProgressBar):
     def setMaximum(self, maximum):
         self.progressBar.setMaximum(maximum)
 
-    def setAccount(self, account):
-        self.accountLabel.setText("for account {0}".format(account))
+    def setAccount(self, account, adverb='by'):
+        self.accountLabel.setText("{0} account {1}".format(adverb, account))
 
     def increment(self, increment):
         value = self.progressBar.value()

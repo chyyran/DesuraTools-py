@@ -1,10 +1,13 @@
 #coding=utf-8
 import subprocess
+import os
 
 import win32api
 import win32gui
 import win32ui
 import win32con
+import win32com.shell.shell
+import win32com.shell.shellcon
 
 from PIL import Image
 __author__ = 'ron975'
@@ -40,6 +43,22 @@ def steam_running():
         return False
 
 
+def get_desura_path():
+    start_menu = win32com.shell.shell.SHGetSpecialFolderPath(0,win32com.shell.shellcon.CSIDL_COMMON_STARTMENU)
+    return os.path.join(start_menu, "Programs", "Desura", "Desura.lnk")
+
+
+def desura_running(username):
+    try:
+        if win32ui.FindWindow(None, "Desura Windows: {0}".format(username)):
+            return True
+    except win32ui.error:
+        return False
+
+
+def start_desura():
+    subprocess.Popen('start /B "" "{0}"'.format(get_desura_path()), shell=True)
+
+
 def close_steam():
     subprocess.call("taskkill /im steam.exe /f /t")
-
