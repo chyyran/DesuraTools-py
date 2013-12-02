@@ -25,12 +25,12 @@ Ensure that the [required dependencies](#Dependencies) are installed. Simply run
 Dependencies
 ------------
 DesuraTools requires Python 2.7, PyInstaller, PIL, PySide, Qt4.8, and pywin32 to build.
-[list]
-[*][Python 2.7](http://www.python.org/ftp/python/2.7/python-2.7.msi)
-[*][Qt 4.8.5 (VS2008)](http://download.qt-project.org/official_releases/qt/4.8/4.8.5/qt-win-opensource-4.8.5-vs2008.exe)
-[*][Python Imaging Library 1.1.7 for Python 2.7](http://effbot.org/downloads/PIL-1.1.7.win32-py2.7.exe)
-[*][pywin32 build 218](http://sourceforge.net/projects/pywin32/files/pywin32/Build%20218/pywin32-218.win32-py2.7.exe/download)
-[/list]
+
+- [Python 2.7](http://www.python.org/ftp/python/2.7/python-2.7.msi)
+- [Qt 4.8.5 (VS2008)](http://download.qt-project.org/official_releases/qt/4.8/4.8.5/qt-win-opensource-4.8.5-vs2008.exe)
+- [Python Imaging Library 1.1.7 for Python 2.7](http://effbot.org/downloads/PIL-1.1.7.win32-py2.7.exe)
+- [pywin32 build 218](http://sourceforge.net/projects/pywin32/files/pywin32/Build%20218/pywin32-218.win32-py2.7.exe/download)
+
 
 For PySide and PyInstaller, it is recommended you install these libraries with pip. pip should be installed to the Scripts directory of your Python installation. pip can be installed from [here](https://bitbucket.org/pcarbonn/pipwin/downloads/pip-Win_1.6.exe).
 
