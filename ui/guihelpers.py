@@ -2,7 +2,7 @@
 import logging
 import webbrowser
 
-from PySide.QtCore import QThread, Qt
+from PySide.QtCore import QThread, Qt, Signal
 from PySide.QtGui import QDialog, QStyle, QMessageBox, QPixmap
 from ui.ui_progressbar import Ui_ProgressBar
 import windows
@@ -25,7 +25,6 @@ class DesuraWaiter(QThread):
             return
         return
 
-
 class ProgressBarDialog(QDialog, Ui_ProgressBar):
     def __init__(self, parent=None):
         super(ProgressBarDialog, self).__init__(parent)
@@ -45,9 +44,10 @@ class ProgressBarDialog(QDialog, Ui_ProgressBar):
     def setAccount(self, account, adverb='by'):
         self.accountLabel.setText("{0} account {1}".format(adverb, account))
 
-    def increment(self, increment):
+    def increment(self, increment, game):
         value = self.progressBar.value()
         self.progressBar.setValue(value+increment)
+        self.currentGame.setText(game)
 
 
 def user_choice(text, windowtitle, icon, acceptbutton="OK"):

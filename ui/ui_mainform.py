@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'D:\Coding\Python\DesuraTools\ui\mainform.ui'
 #
-# Created: Sun Nov 17 23:30:30 2013
+# Created: Mon Dec 09 01:09:38 2013
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!

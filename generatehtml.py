@@ -56,6 +56,8 @@ class DesuraReport:
         #bootstrap css
         desurareport.write('<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.1/css/bootstrap.min.css" rel="stylesheet">')
         desurareport.write('<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.1/js/bootstrap.min.js"></script>')
+        desurareport.write("<link href='http://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>")
+        desurareport.write("<style type='text/css'>*{font-family: 'Roboto', sans-serif;}</style>")
         desurareport.write('<base target="_blank">')
         desurareport.write('</head><body>')
         desurareport.write("<h1>DesuraTools Report</h1>")

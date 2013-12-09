@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'D:\Coding\Python\DesuraTools\ui\progressbar.ui'
 #
-# Created: Sun Dec 01 19:39:05 2013
+# Created: Mon Dec 09 01:49:08 2013
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,14 +12,14 @@ from PySide import QtCore, QtGui
 class Ui_ProgressBar(object):
     def setupUi(self, ProgressBar):
         ProgressBar.setObjectName("ProgressBar")
-        ProgressBar.resize(234, 111)
+        ProgressBar.resize(234, 150)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(ProgressBar.sizePolicy().hasHeightForWidth())
         ProgressBar.setSizePolicy(sizePolicy)
-        ProgressBar.setMinimumSize(QtCore.QSize(234, 111))
-        ProgressBar.setMaximumSize(QtCore.QSize(234, 111))
+        ProgressBar.setMinimumSize(QtCore.QSize(234, 150))
+        ProgressBar.setMaximumSize(QtCore.QSize(234, 150))
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../icons/desuratools_256.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         ProgressBar.setWindowIcon(icon)
@@ -39,9 +39,9 @@ class Ui_ProgressBar(object):
         self.frame.setFrameShape(QtGui.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtGui.QFrame.Raised)
         self.frame.setObjectName("frame")
-        self.gridLayout_2 = QtGui.QGridLayout(self.frame)
-        self.gridLayout_2.setContentsMargins(-1, 0, 0, -1)
-        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self.frame)
+        self.verticalLayout_2.setContentsMargins(-1, 0, 0, -1)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.progressBar = QtGui.QProgressBar(self.frame)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -54,7 +54,10 @@ class Ui_ProgressBar(object):
         self.progressBar.setProperty("value", 0)
         self.progressBar.setTextVisible(True)
         self.progressBar.setObjectName("progressBar")
-        self.gridLayout_2.addWidget(self.progressBar, 0, 0, 1, 1)
+        self.verticalLayout_2.addWidget(self.progressBar)
+        self.currentGame = QtGui.QLabel(self.frame)
+        self.currentGame.setObjectName("currentGame")
+        self.verticalLayout_2.addWidget(self.currentGame)
         self.gridLayout.addWidget(self.frame, 1, 0, 1, 1)
         self.frame_2 = QtGui.QFrame(ProgressBar)
         self.frame_2.setStyleSheet("background:#fff;")
@@ -73,6 +76,7 @@ class Ui_ProgressBar(object):
         self.infoTextLabel.setObjectName("infoTextLabel")
         self.verticalLayout.addWidget(self.infoTextLabel)
         self.accountLabel = QtGui.QLabel(self.frame_2)
+        self.accountLabel.setText("")
         self.accountLabel.setObjectName("accountLabel")
         self.verticalLayout.addWidget(self.accountLabel)
         self.gridLayout_3.addLayout(self.verticalLayout, 0, 1, 1, 1)
@@ -88,8 +92,8 @@ class Ui_ProgressBar(object):
     def retranslateUi(self, ProgressBar):
         ProgressBar.setWindowTitle(QtGui.QApplication.translate("ProgressBar", "Loading...", None, QtGui.QApplication.UnicodeUTF8))
         self.progressBar.setFormat(QtGui.QApplication.translate("ProgressBar", "%p%", None, QtGui.QApplication.UnicodeUTF8))
+        self.currentGame.setText(QtGui.QApplication.translate("ProgressBar", "Loading...", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel.setText(QtGui.QApplication.translate("ProgressBar", "Please wait..", None, QtGui.QApplication.UnicodeUTF8))
         self.infoTextLabel.setText(QtGui.QApplication.translate("ProgressBar", "DesuraTools is loading games owned", None, QtGui.QApplication.UnicodeUTF8))
-        self.accountLabel.setText(QtGui.QApplication.translate("ProgressBar", "_adverb_ account _account_", None, QtGui.QApplication.UnicodeUTF8))
         self.iconLabel.setText(QtGui.QApplication.translate("ProgressBar", "TextLabel", None, QtGui.QApplication.UnicodeUTF8))
 
