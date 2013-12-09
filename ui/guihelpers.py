@@ -1,8 +1,9 @@
 #coding=utf-8
 import logging
 import webbrowser
+import sys
 
-from PySide.QtCore import QThread, Qt, Signal
+from PySide.QtCore import QThread, Qt
 from PySide.QtGui import QDialog, QStyle, QMessageBox, QPixmap
 from ui.ui_progressbar import Ui_ProgressBar
 import windows
@@ -49,6 +50,10 @@ class ProgressBarDialog(QDialog, Ui_ProgressBar):
         self.progressBar.setValue(value+increment)
         self.currentGame.setText(game)
 
+
+class LoadingGamesDialog(ProgressBarDialog):
+    def closeEvent(self, *args, **kwargs):
+        sys.exit(1) #Exit with error if someone closes while loading.
 
 def user_choice(text, windowtitle, icon, acceptbutton="OK"):
     choice_dialog = QMessageBox()

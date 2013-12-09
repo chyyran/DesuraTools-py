@@ -29,9 +29,8 @@ from steamshortcut import steam_user_manager, steam_shortcut_manager
 
 class MainWindow(QMainWindow, Ui_MainWindow):
 
-    def __init__(self, app, parent=None):
+    def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        self.app = app
         self.current_username = ""
         self.setupUi(self)
         self.logger = get_logger('desuratools', 'desuratools.log')
@@ -81,10 +80,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.steamID_input.addItems(steamutils.get_customurls_on_machine())
         self.ownedGames_list.addItem("Verify your Desura username to see your owned games")
 
-        self.app.processEvents()
-        self.loading_dialog = ProgressBarDialog()
+        QApplication.processEvents()
+        self.loading_dialog = LoadingGamesDialog()
         self.loading_dialog.show()
-        self.app.processEvents()
+        QApplication.processEvents()
         self.populate_installed_games()
         self.load_data()
         self.loading_dialog.close()
@@ -136,14 +135,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 })
         )
         savefile.close()
+        QApplication.quit()
 
     def populate_qlistwidget(self, game, qlistwidget, iconurls=False):
            if iconurls:
                itemicon = self.qpixmap_from_url(game.icon)
-               self.app.processEvents()
+               QApplication.processEvents()
            else:
                itemicon = QPixmap(game.icon)
-               self.app.processEvents()
+               QApplication.processEvents()
            item = QListWidgetItem(itemicon, game.name, qlistwidget)
            item.setData(Qt.UserRole, game)
            qlistwidget.addItem(item)
@@ -156,14 +156,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 return
             self.ownedGames_list.clear()
             self.loading_dialog.setAccount(self.current_username)
-            self.app.processEvents()
+            QApplication.processEvents()
             self.loading_dialog.setMaximum(len(gameslist.GamesList(self.current_username).get_games()))
-            self.app.processEvents()
+            QApplication.processEvents()
             for game in gameslist.GamesList(self.current_username).get_games():
                 self.populate_qlistwidget(game, self.ownedGames_list, True)
-                self.app.processEvents()
+                QApplication.processEvents()
                 self.loading_dialog.increment(1, game.name)
-                self.app.processEvents()
+                QApplication.processEvents()
                 self.logger.info("Added Game {0}".format(game.name))
                 self.statusBar.showMessage("Added Game {0}".format(game.name))
         except gameslist.PrivateProfileError:
@@ -291,18 +291,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             for item in gamelist[0].selectedItems():
                 game = item.data(Qt.UserRole)
                 steamid = steam_user_manager.communityid64_from_name(self.steamID_input.currentText())
-                self.app.processEvents()
+                QApplication.processEvents()
                 if not steamutils.check_steam_version(steamid, game.name):
                     if not steamutils.shortcut_exists(self.get_steam_manager(), game.name):
                         steamutils.insert_shortcut(self.get_steam_manager(), game.name, game.exe, icons.choose_icon(game))
                         self.statusBar.showMessage("Added {0} to the Steam library".format(game.name))
-                        self.app.processEvents()
+                        QApplication.processEvents()
                     else:
                         self.statusBar.showMessage("{0} already exists in the Steam library".format(game.name))
-                        self.app.processEvents()
+                        QApplication.processEvents()
                 else:
                     self.statusBar.showMessage("You already own the Steam version of {0}".format(game.name))
-                    self.app.processEvents()
+                    QApplication.processEvents()
 
     def get_steam_manager(self):
         steamid = steam_user_manager.communityid32_from_name(self.steamID_input.currentText())
@@ -403,7 +403,7 @@ def run():
     windows.data_dir()
     app = QApplication(sys.argv)
     try:
-        frame = MainWindow(app)
+        frame = MainWindow()
         frame.show()
         app.exec_()
     except (socket.gaierror, httplib.BadStatusLine):
