@@ -8,7 +8,7 @@ import distutils.dir_util
 
 def build(args=['--onefile', '--clean', '--windowed', '--icon="icons/desuratools.ico"', '--noupx']):
     pyinstaller = os.path.join(site.getsitepackages()[0], "Scripts", "pyinstaller-script.py")
-    dependencies = ['PySide', 'PIL', 'win32api', 'win32gui', 'win32ui', 'win32con']
+    dependencies = ['PySide', 'PIL', 'win32api', 'win32gui', 'win32ui', 'win32con', 'requests']
     imageformats = os.path.join(site.getsitepackages()[1], "PySide", "plugins", "imageformats")
     args.insert(0, 'desuratools.py')
     args.insert(0, pyinstaller)

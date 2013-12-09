@@ -52,7 +52,7 @@ class SteamShortcutFileFormatter():
     def generate_string(self,shortcuts):
         string = x00 + 'shortcuts' + x00 + self.generate_array_string(shortcuts) + x08 + x08 + x0a
         # rstrip is to remove the eol character that is automatically added.
-        # According to vim the files I got from steam don't have the eol character
+        # According to vim the files I got from steamshortcut don't have the eol character
         return unicode(string).rstrip()
         
     def generate_array_string(self,shortcuts):

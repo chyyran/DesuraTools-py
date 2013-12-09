@@ -5,7 +5,7 @@ from distutils.core import setup
 setup(
     name='DesuraTools',
     version='1.0',
-    packages=['ui', 'steam'],
+    packages=['ui', 'steamshortcut'],
     url='http://github.com/ron975/DesuraTools',
     license='GNU GPL v3',
     author='ron975',

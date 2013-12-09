@@ -22,7 +22,7 @@ def windows_steam_location():
     return registry.QueryValueEx(key,"SteamPath")[0]
 
 def windows_userdata_location():
-    # On Windows, the userdata directory is the steam installation directory
+    # On Windows, the userdata directory is the steamshortcut installation directory
     # with 'userdata' appeneded
     return os.path.join(windows_steam_location(),"userdata")
 

@@ -1,8 +1,9 @@
 #coding=utf-8
 __author__ = 'ron975'
 import os
-import steam.steam_shortcut_manager as shortcutmanager
-import steam.steam_user_manager as usermanager
+import steamapi
+import steamshortcut.steam_shortcut_manager as shortcutmanager
+import steamshortcut.steam_user_manager as usermanager
 
 
 def insert_shortcut(manager, name, exe, icon=""):
@@ -39,3 +40,12 @@ def choose_userdata_folder():
     return shortcutmanager.SteamShortcutManager(
         usermanager.shortcuts_file_for_user_id(associate_ids_with_users()[index-1]['steamid32'])
     )
+
+
+def check_steam_version(steamid, name):
+    steamapi.core.APIConnection('26CD88279076DCE178B6D47E167850AB')
+    user = steamapi.user.SteamUser(steamid)
+    for game in user.owned_games:
+        if game.name == name:
+            return True
+    return False

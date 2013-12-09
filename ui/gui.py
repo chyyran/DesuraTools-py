@@ -9,7 +9,6 @@ import urllib
 import socket
 import httplib
 import json
-import os
 
 from PySide.QtGui import QMainWindow, QApplication, QListWidgetItem, QAbstractItemView, QPixmap, QMenu
 from PySide.QtGui import QAction, QMessageBox, QCursor
@@ -24,7 +23,7 @@ import windows
 from generatehtml import DesuraReport
 from ui.ui_mainform import Ui_MainWindow
 
-from steam import steam_user_manager, steam_shortcut_manager
+from steamshortcut import steam_user_manager, steam_shortcut_manager
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -90,20 +89,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.loading_dialog.close()
         self.raise_()
 
-    def verify_user(self):
-        if len(self.current_username) == 0:
+    def verify_user(self, username=None):
+        if username is None:
+            username=self.current_username
+        if len(username) == 0:
             return False
-        if windows.desura_running(self.current_username):
+        if windows.desura_running(username):
             return True
         verify_dialog = QMessageBox()
-        verify_dialog.setText("<b>Verify your identity</b><br />Sign in to Desura to continue with account <b>{0}</b> to confirm your identity".format(self.current_username))
-        verify_dialog.setInformativeText("<i>Waiting for Desura sign-in</i>")
+        verify_dialog.setText("<b>Verify your identity</b><br />Sign in to Desura to continue with account <b>{0}</b> to confirm your identity".format(username))
+        verify_dialog.setInformativeText("<i>Waiting for Desura sign-in...</i>")
         verify_dialog.setWindowTitle("Sign into Desura to continue")
         verify_dialog.setStandardButtons(0)
         verify_dialog.setIcon(QMessageBox.Information)
         verify_dialog.addButton("Cancel", QMessageBox.RejectRole)
         verify_dialog.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint)
-        desurawaiter = DesuraWaiter(self.current_username)
+        desurawaiter = DesuraWaiter(username)
         desurawaiter.finished.connect(verify_dialog.close)
         desurawaiter.start()
         result = verify_dialog.exec_()
@@ -113,13 +114,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return True
 
     def load_data(self):
-        with open('desuratools.json', 'r') as savefile:
-            data = json.loads(savefile.read())
-            if data['desuraname'] != "":
-                self.desuraAccountName_input.setText(data['desuraname'])
-                self.populate_owned_games()
-            steamid = self.steamID_input.findText(data['steamname'])
-            self.steamID_input.setCurrentIndex(steamid)
+        try:
+            with open('desuratools.json', 'r') as savefile:
+                data = json.loads(savefile.read())
+                if data['desuraname'] != "":
+                    self.desuraAccountName_input.setText(data['desuraname'])
+                    self.populate_owned_games()
+                steamid = self.steamID_input.findText(data['steamname'])
+                self.steamID_input.setCurrentIndex(steamid)
+        except IOError:
+            pass
 
     def closeEvent(self, *args, **kwargs):
         self.logger.info("Saving to file")
@@ -144,7 +148,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
            qlistwidget.addItem(item)
 
     def populate_owned_games(self):
-        self.statusBar.showMessage("Loading... Please Wait")
+        self.statusBar.showMessage("Loading... Please Wait - Waiting for Desura")
         try:
             if not self.set_current_account():
                 self.statusBar.showMessage("")
@@ -185,14 +189,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def set_current_account(self, username=None):
         if username is None:
             username = self.desuraAccountName_input.text()
-        self.current_username = username
-        if not self.verify_user():
-            self.current_username = ""
+        if not self.verify_user(username):
             return False
         try:
             gameslist.GamesList(username)
         except gameslist.InvalidDesuraProfileError:
-            self.current_username = ""
             raise
         self.current_username = username
         self.logger.info("Set current username to {0}".format(self.current_username))
@@ -287,11 +288,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if gamelist[1] == 0:
             for item in gamelist[0].selectedItems():
                 game = item.data(Qt.UserRole)
-                if not steamutils.shortcut_exists(self.get_steam_manager(), game.name):
-                    steamutils.insert_shortcut(self.get_steam_manager(), game.name, game.exe, icons.choose_icon(game))
-                    self.statusBar.showMessage("Added {0} to the Steam library".format(game.name))
+                steamid = steam_user_manager.communityid64_from_name(self.steamID_input.currentText())
+                self.app.processEvents()
+                if not steamutils.check_steam_version(steamid, game.name):
+                    if not steamutils.shortcut_exists(self.get_steam_manager(), game.name):
+                        steamutils.insert_shortcut(self.get_steam_manager(), game.name, game.exe, icons.choose_icon(game))
+                        self.statusBar.showMessage("Added {0} to the Steam library".format(game.name))
+                        self.app.processEvents()
+                    else:
+                        self.statusBar.showMessage("{0} already exists in the Steam library".format(game.name))
+                        self.app.processEvents()
                 else:
-                    self.statusBar.showMessage("{0} already exists in the Steam library".format(game.name))
+                    self.statusBar.showMessage("You already own the Steam version of {0}".format(game.name))
+                    self.app.processEvents()
 
     def get_steam_manager(self):
         steamid = steam_user_manager.communityid32_from_name(self.steamID_input.currentText())
@@ -356,8 +365,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             result = ask_close_steam.exec_()
 
             if result == QMessageBox.AcceptRole:
-                self.logger.info("Closing Steam")
-                self.statusBar.showMessage("Closing Steam")
+                self.logger.info("Waiting for Steam to close")
+                self.statusBar.showMessage("Waiting for Steam to close")
                 windows.close_steam()
                 return True
             else:
