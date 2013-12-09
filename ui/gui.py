@@ -1,4 +1,6 @@
 #coding=utf-8
+from ui.guihelpers import DesuraWaiter, ProgressBarDialog, user_choice, error_message, get_logger
+
 __author__ = 'ron975'
 __version__ = '1.0'
 import sys
@@ -7,10 +9,10 @@ import urllib
 import socket
 import httplib
 import json
-import logging
+import urllib2
 
-from PySide.QtGui import QMainWindow, QApplication, QListWidgetItem, QAbstractItemView, QPixmap, QMenu, QStyle, QDialog
-from PySide.QtGui import QAction, QMessageBox, QCursor, QIcon
+from PySide.QtGui import QMainWindow, QApplication, QListWidgetItem, QAbstractItemView, QPixmap, QMenu
+from PySide.QtGui import QAction, QMessageBox, QCursor
 from PySide.QtCore import Qt
 
 import icons
@@ -21,7 +23,6 @@ import windows
 
 from generatehtml import DesuraReport
 from ui.ui_mainform import Ui_MainWindow
-from ui.ui_progressbar import Ui_ProgressBar
 
 from steam import steam_user_manager, steam_shortcut_manager
 
@@ -83,31 +84,52 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.loading_dialog.show()
         self.app.processEvents()
         self.populate_installed_games()
-        self.load_data()
-        self.loading_dialog.setText("<b>Verify your identity</b>")
-        self.loading_dialog.setInformativeText("Sign in to Desura to continue")
-        self.loading_dialog.setWindowTitle("Sign into Desura to continue")
-        self.loading_dialog.setAccount(self.desuraAccountName_input.text(), "with")
-        self.app.processEvents()
-        self.wait_for_desura()
-        self.loading_dialog.close()
+        try:
+            self.load_data()
+            self.loading_dialog.close()
+        except (urllib2.HTTPError, gameslist.PrivateProfileError):
+            self.loading_dialog.close()
+            self.desuraAccountName_input.setText("")
+            self.ownedGames_list.clear()
+            self.statusBar.showMessage("Failed to load games")
         self.raise_()
 
+    def verify_user(self, username=None):
+        if username is None:
+            username = self.desuraAccountName_input.text()
+        if len(username) == 0:
+            return False
+        if windows.desura_running(username):
+            return True
+        verify_dialog = QMessageBox()
+        verify_dialog.setText("<b>Verify your identity</b><br />Sign in to Desura to continue with account {0} to confirm your identity".format(username))
+        verify_dialog.setInformativeText("<i>Waiting for Desura sign-in</i>")
+        verify_dialog.setWindowTitle("Sign into Desura to continue")
+        verify_dialog.setStandardButtons(0)
+        verify_dialog.setIcon(QMessageBox.Information)
+        verify_dialog.addButton("Cancel", QMessageBox.RejectRole)
+        verify_dialog.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint)
+        desurawaiter = DesuraWaiter(username)
+        desurawaiter.finished.connect(verify_dialog.close)
+        desurawaiter.start()
+        result = verify_dialog.exec_()
+        if result == QMessageBox.RejectRole:
+            desurawaiter.terminate()
+            return False
+        return True
+
     def load_data(self):
-        try:
-            with open('../desuratools.json', 'r') as savefile:
-                data = json.loads(savefile.read())
-                if data['desuraname'] != "":
-                    self.desuraAccountName_input.setText(data['desuraname'])
-                    self.populate_owned_games()
-                steamid = self.steamID_input.findText(data['steamname'])
-                self.steamID_input.setCurrentIndex(steamid)
-        except:
-           pass
+        with open('desuratools.json', 'r') as savefile:
+            data = json.loads(savefile.read())
+            if data['desuraname'] != "":
+                self.desuraAccountName_input.setText(data['desuraname'])
+                self.populate_owned_games()
+            steamid = self.steamID_input.findText(data['steamname'])
+            self.steamID_input.setCurrentIndex(steamid)
 
     def closeEvent(self, *args, **kwargs):
         self.logger.info("Saving to file")
-        savefile = open('../desuratools.json', 'w')
+        savefile = open('desuratools.json', 'w')
         savefile.write(
                 json.dumps({
                 'desuraname': self.desuraAccountName_input.text(),
@@ -130,6 +152,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def populate_owned_games(self):
         username = self.desuraAccountName_input.text()
         self.ownedGames_list.clear()
+        if not self.verify_user(username):
+            return
         try:
             self.loading_dialog.setAccount(username)
             self.app.processEvents()
@@ -141,7 +165,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.app.processEvents()
                 self.logger.info("Added Game {0}".format(game.name))
                 self.statusBar.showMessage("Added Game {0}".format(game.name))
-        except gameslist.PrivateProfileError:
+        except gameslist.PrivateProfileError, e:
             self.logger.error("Private Desura Profile")
             self.statusBar.showMessage("Private Desura Profile not supported")
 
@@ -149,10 +173,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 "The Desura Profile {0} is set to Private. <br/>DesuraTools works only with public Desura Profiles."
                 .format(username)
             ).exec_()
+            raise e
 
-        except Exception:
-            self.logger.error("Invalid Desura Name")
-            self.statusBar.showMessage("Invalid Desura Name")
+        except urllib2.HTTPError, e:
+            self.logger.error("Desura account not found")
+            self.statusBar.showMessage("Desura account not found")
+            raise e
+
         self.ownedGames_list.customContextMenuRequested.connect(self.show_game_context)
         self.ownedGames_list.doubleClicked.connect(self.install_game)
         self.logger.info("All owned Desura games loaded for account {0}".format(username))
@@ -189,8 +216,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.get_steam_manager().save()
 
     def install_game(self):
-        self.statusBar.showMessage("Waiting for Desura")
-        self.wait_for_desura()
+        self.statusBar.showMessage("Sign into Desura to install")
+        if not self.verify_user():
+            self.statusBar.showMessage("Failed to verify user")
+            return
         gamelist = self.get_current_list()
         if gamelist[1] == 1:
             for item in gamelist[0].selectedItems():
@@ -200,8 +229,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 game.install()
 
     def uninstall_game(self):
-        self.statusBar.showMessage("Waiting for Desura")
-        self.wait_for_desura()
+        self.statusBar.showMessage("Sign into Desura to uninstall")
+        if not self.verify_user():
+            self.statusBar.showMessage("Failed to verify user")
+            return
         gamelist = self.get_current_list()
         if gamelist[1] == 0:
             if len(gamelist[0].selectedItems()) > 1:
@@ -223,8 +254,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 game.uninstall()
 
     def verify_game(self):
-        self.statusBar.showMessage("Waiting for Desura")
-        self.wait_for_desura()
+        self.statusBar.showMessage("Sign into Desura to verify")
+        if not self.verify_user():
+            self.statusBar.showMessage("Failed to verify user")
+            return
         gamelist = self.get_current_list()
         if gamelist[1] == 0:
             for item in gamelist[0].selectedItems():
@@ -320,25 +353,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             return True
 
-    @classmethod
-    def start_desura(cls):
-        try:
-            windows.start_desura()
-        except WindowsError:
-            error_message("Desura has not been installed or is not installed correctly. <br />"
-                            "Please install Desura before using DesuraTools").exec_()
-            webbrowser.open("http://www.desura.com/install", 2)
-        except Exception, e:
-            error_message("Error occured when launching Desura <br /> {0}".format(e.message))
-
-    def wait_for_desura(self, username=None):
-        if username is None:
-            username = self.desuraAccountName_input.text()
-        if not windows.desura_running(username):
-            self.start_desura()
-            while not windows.desura_running(username):
-                self.app.processEvents()
-
     def generate_report(self):
         self.logger.info("Generating Report")
         self.statusBar.showMessage("Generating Report")
@@ -357,62 +371,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             itemicon.loadFromData(img_data)
             return itemicon
 
-class ProgressBarDialog(QDialog, Ui_ProgressBar):
-    def __init__(self, parent=None):
-        super(ProgressBarDialog, self).__init__(parent)
-        self.setupUi(self)
-        self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint)
-        self.iconLabel.setPixmap(QStyle.standardPixmap(self.style(), QStyle.SP_MessageBoxInformation))
-
-    def setText(self, text):
-        self.textLabel.setText(text)
-
-    def setInformativeText(self, text):
-        self.infoTextLabel.setText(text)
-
-    def setMaximum(self, maximum):
-        self.progressBar.setMaximum(maximum)
-
-    def setAccount(self, account, adverb='by'):
-        self.accountLabel.setText("{0} account {1}".format(adverb, account))
-
-    def increment(self, increment):
-        value = self.progressBar.value()
-        self.progressBar.setValue(value+increment)
-
-
-def get_logger(name, fh):
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-    fh = logging.FileHandler(fh)
-    sh = logging.StreamHandler()
-    formatter = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s')
-    fh.setFormatter(formatter)
-    sh.setFormatter(formatter)
-    logger.addHandler(fh)
-    logger.addHandler(sh)
-    return logger
-
-
-def error_message(text):
-    errorbox = QMessageBox()
-    errorbox.setWindowIcon(QPixmap("../icons/desuratools_256.png"))
-    errorbox.setWindowTitle("Error")
-    errorbox.setText(text)
-    errorbox.setIcon(QMessageBox.Critical)
-    return errorbox
-
-
-def user_choice(text, windowtitle, icon, acceptbutton="OK"):
-    choice_dialog = QMessageBox()
-    choice_dialog.setWindowIcon(QPixmap("../icons/desuratools_256.png"))
-    choice_dialog.setText(text)
-    choice_dialog.setIcon(icon)
-    choice_dialog.setStandardButtons(QMessageBox.Cancel)
-    choice_dialog.setWindowTitle(windowtitle)
-    choice_dialog.addButton(acceptbutton, QMessageBox.AcceptRole)
-    return choice_dialog
-
 def run():
     app = QApplication(sys.argv)
     try:
@@ -423,6 +381,7 @@ def run():
         error_message("An internet connection is required to use DesuraTools").exec_()
     except Exception, e:
         error_message("An error occured when starting DesuraTools<br /><i>{0}</i>".format(e.message)).exec_()
+        raise e
 
 if __name__ == '__main__':
     run()
