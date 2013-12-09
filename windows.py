@@ -1,6 +1,7 @@
 #coding=utf-8
 import subprocess
 import os
+import ctypes
 
 import win32api
 import win32gui
@@ -14,6 +15,18 @@ __author__ = 'ron975'
 """
 This file contains all the methods that require windows.
 """
+
+
+def data_dir():
+    appdata = os.getenv('APPDATA')
+    if not os.path.exists(os.path.join(appdata, "desuratools")):
+        os.mkdir(os.path.join(appdata, "desuratools"))
+    return os.path.join(appdata, "desuratools")
+
+
+def init_icon():
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("Ron975.DesuraTools")
+
 
 def get_icon(exe):
     ico_x = win32api.GetSystemMetrics(win32con.SM_CXICON)

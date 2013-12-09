@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'D:\Coding\Python\DesuraTools\ui\mainform.ui'
 #
-# Created: Mon Dec 09 01:09:38 2013
+# Created: Mon Dec 09 09:44:20 2013
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,7 +14,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(527, 503)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../icons/desuratools_256.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("desuratools_256.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         MainWindow.setToolTip("")
         MainWindow.setIconSize(QtCore.QSize(256, 256))

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'D:\Coding\Python\DesuraTools\ui\progressbar.ui'
 #
-# Created: Mon Dec 09 01:49:08 2013
+# Created: Mon Dec 09 09:44:26 2013
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -21,7 +21,7 @@ class Ui_ProgressBar(object):
         ProgressBar.setMinimumSize(QtCore.QSize(234, 150))
         ProgressBar.setMaximumSize(QtCore.QSize(234, 150))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../icons/desuratools_256.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("desuratools_256.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         ProgressBar.setWindowIcon(icon)
         ProgressBar.setAutoFillBackground(True)
         ProgressBar.setStyleSheet("")

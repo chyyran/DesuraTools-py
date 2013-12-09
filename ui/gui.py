@@ -9,6 +9,7 @@ import urllib
 import socket
 import httplib
 import json
+import os
 
 from PySide.QtGui import QMainWindow, QApplication, QListWidgetItem, QAbstractItemView, QPixmap, QMenu
 from PySide.QtGui import QAction, QMessageBox, QCursor
@@ -115,7 +116,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def load_data(self):
         try:
-            with open('desuratools.json', 'r') as savefile:
+            with open(os.path.join(windows.data_dir(), 'desuratools.json'), 'r') as savefile:
                 data = json.loads(savefile.read())
                 if data['desuraname'] != "":
                     self.desuraAccountName_input.setText(data['desuraname'])
@@ -127,7 +128,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def closeEvent(self, *args, **kwargs):
         self.logger.info("Saving to file")
-        savefile = open('desuratools.json', 'w')
+        savefile = open(os.path.join(windows.data_dir(), 'desuratools.json'), 'w')
         savefile.write(
                 json.dumps({
                 'desuraname': self.current_username,
@@ -398,6 +399,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return itemicon
 
 def run():
+    windows.init_icon()
+    windows.data_dir()
     app = QApplication(sys.argv)
     try:
         frame = MainWindow(app)
@@ -411,4 +414,4 @@ def run():
         raise
 
 if __name__ == '__main__':
-    run()
+    print "Please run from desuratools.py"
