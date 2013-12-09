@@ -11,7 +11,7 @@ Simply run `desuratools.exe`. Ensure the `imageformats` folder containing dll li
 Input your Desura username and press "Load Games". Ensure the correct Steam ID is selected. DesuraTools will automatically save your settings.
 Note: **Private Desura profiles are unsupported. A Steam account must have been logged on at least once on your computer for it to show in the list**
 
-You can select multiple games using CTRL, or the "Select All" button. Right-click on a game, or multipe games, for more options. 
+You can select multiple games using CTRL, or the "Select All" button. Right-click on a game, or multiple games, for more options.
 
 Features
 --------
