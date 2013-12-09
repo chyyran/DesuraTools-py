@@ -148,7 +148,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
            qlistwidget.addItem(item)
 
     def populate_owned_games(self):
-        self.statusBar.showMessage("Loading... Please Wait - Waiting for Desura")
+        self.statusBar.showMessage("Waiting for Desura... Please Wait")
         try:
             if not self.set_current_account():
                 self.statusBar.showMessage("")
@@ -160,6 +160,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.app.processEvents()
             for game in gameslist.GamesList(self.current_username).get_games():
                 self.populate_qlistwidget(game, self.ownedGames_list, True)
+                self.app.processEvents()
                 self.loading_dialog.increment(1, game.name)
                 self.app.processEvents()
                 self.logger.info("Added Game {0}".format(game.name))

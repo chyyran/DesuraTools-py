@@ -14,4 +14,4 @@ exe = EXE(pyz,
           debug=False,
           strip=None,
           upx=False,
-          console=False , icon='icons\\desuratools.ico')
+          console=False , version='versioninfo.txt', icon='icons\\desuratools.ico')
