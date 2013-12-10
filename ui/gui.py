@@ -20,6 +20,7 @@ import steamutils
 import installedgames
 import gameslist
 import windows
+import sqlite3
 
 from generatehtml import DesuraReport
 from ui.ui_mainform import Ui_MainWindow
@@ -399,19 +400,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             return itemicon
 
 def run():
-    windows.init_icon()
-    windows.data_dir()
     app = QApplication(sys.argv)
     try:
+        windows.init_icon()
+        windows.data_dir()
+        installedgames.init_db()
         frame = MainWindow()
         frame.show()
         app.exec_()
     except (socket.gaierror, httplib.BadStatusLine):
         error_message("An internet connection is required to use DesuraTools").exec_()
-        raise
+        pass
+    except sqlite3.OperationalError, e:
+        error_message("Desura must be installed to use DesuraTools".format(e)).exec_()
+        webbrowser.open("http://www.desura.com/install")
+        pass
     except Exception, e:
         error_message("An error occured when starting DesuraTools<br /><i>{0}</i>".format(e)).exec_()
-        raise
+        pass
 
 if __name__ == '__main__':
     print "Please run from desuratools.py"

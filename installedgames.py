@@ -2,6 +2,13 @@ import sqlite3
 import os
 from desuragame import InstalledGame
 
+games_db = None
+
+
+def init_db():
+    global games_db
+    games_db = sqlite3.connect(get_item_info_path()[0])
+
 
 def get_item_info_path():
         desurapath = os.path.join("C:/", "ProgramData", "Desura","DesuraApp")
@@ -9,7 +16,6 @@ def get_item_info_path():
             return os.path.join(desurapath,"iteminfo_d.sqlite"), True
         else:
             return os.path.join(desurapath,"iteminfo_c.sqlite"), False
-games_db = sqlite3.connect(get_item_info_path()[0])
 
 
 def _get_games_d():

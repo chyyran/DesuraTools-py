@@ -12,7 +12,7 @@ exe = EXE(pyz,
           debug=False,
           strip=None,
           upx=False,
-          console=False , version='versioninfo.txt', icon='icons\\desuratools.ico')
+          console=True , version='versioninfo.txt', icon='icons\\desuratools.ico')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
