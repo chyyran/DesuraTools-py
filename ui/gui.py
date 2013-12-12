@@ -82,7 +82,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.ownedGames_list.addItem("Verify your Desura username to see your owned games")
 
         QApplication.processEvents()
-        self.loading_dialog = LoadingGamesDialog()
+        self.loading_dialog = ProgressBarDialog()
         self.loading_dialog.show()
         QApplication.processEvents()
         self.populate_installed_games()
@@ -101,15 +101,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         verify_dialog.setText("<b>Verify your identity</b><br />Sign in to Desura to continue with account <b>{0}</b> to confirm your identity".format(username))
         verify_dialog.setInformativeText("<i>Waiting for Desura sign-in...</i>")
         verify_dialog.setWindowTitle("Sign into Desura to continue")
-        verify_dialog.setStandardButtons(0)
+        verify_dialog.setStandardButtons(QMessageBox.Cancel)
         verify_dialog.setIcon(QMessageBox.Information)
-        verify_dialog.addButton("Cancel", QMessageBox.RejectRole)
         verify_dialog.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint)
         desurawaiter = DesuraWaiter(username)
         desurawaiter.finished.connect(verify_dialog.close)
         desurawaiter.start()
         result = verify_dialog.exec_()
-        if result == 0:
+        if result == QMessageBox.Cancel:
             desurawaiter.terminate()
             return False
         return True

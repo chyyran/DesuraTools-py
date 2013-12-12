@@ -7,7 +7,7 @@ import distutils.dir_util
 import shutil
 
 
-def build(args=['-y', '--onedir', '--clean', '--icon="icons/desuratools.ico"', '--noupx', '--version-file=versioninfo.txt']):
+def build(args=['-y', '-windowed', '--onedir', '--clean', '--icon="icons/desuratools.ico"', '--noupx', '--version-file=versioninfo.txt']):
     pyinstaller = os.path.join(site.getsitepackages()[0], "Scripts", "pyinstaller-script.py")
     dependencies = ['PySide', 'PIL', 'win32api', 'win32gui', 'win32ui', 'win32con', 'requests']
     imageformats = os.path.join(site.getsitepackages()[1], "PySide", "plugins", "imageformats")
