@@ -1,0 +1,27 @@
+
+1024 VERSIONINFO
+FILEVERSION 1,0,0,41
+PRODUCTVERSION 1,0,0,41
+FILEOS 0x40004
+FILETYPE 0x1
+{
+BLOCK "StringFileInfo"
+{
+	BLOCK "040904b0"
+	{
+		VALUE "FileDescription", "DesuraTools"
+		VALUE "FileVersion", "1.0.0.41"
+		VALUE "InternalName", "DesuraTools"
+		VALUE "LegalCopyright", "Copyright (c) Ronny Chan. Code licensed under GPLv3"
+		VALUE "OriginalFilename", "DesuraTools.exe"
+		VALUE "ProductName", "DesuraTools"
+		VALUE "ProductVersion", "1.0.0.41"
+	}
+}
+
+BLOCK "VarFileInfo"
+{
+	VALUE "Translation", 0x0409 0x04B0
+}
+}
+

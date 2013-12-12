@@ -1,0 +1,1 @@
+Use Resource Hacker to insert icons and version information into the output `DesuraTools.exe`
