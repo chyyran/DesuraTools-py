@@ -22,8 +22,7 @@ def _get_games_d():
         games = []
         # 2097164
         cur = games_db.cursor().execute(
-            "SELECT * FROM iteminfo "
-            "WHERE statusflags = 16777246 OR statusflags = 30 OR statusflags = 26 OR statusflags = 16777242"
+            "SELECT * FROM iteminfo WHERE statusflags = 16777246 OR statusflags = 30 OR statusflags = 26 OR statusflags = 16777242"
         )
         for result in cur.fetchall():
             name = result[6]
@@ -38,11 +37,7 @@ def _get_games_d():
 def _get_games_c():
         games = []
         # 2097164
-        cur = games_db.cursor().execute("SELECT * FROM iteminfo "
-                                        "WHERE statusflags = 16777246 "
-                                        "OR statusflags = 30 "
-                                        "OR statusflags = 26 "
-                                        "OR statusflags = 16777242")
+        cur = games_db.cursor().execute("SELECT * FROM iteminfo WHERE statusflags = 16777246 OR statusflags = 30 OR statusflags = 26 OR statusflags = 16777242")
         for result in cur.fetchall():
             name = result[6]
             shortname = result[7]

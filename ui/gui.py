@@ -124,7 +124,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def load_data(self):
         try:
             with open(os.path.join(windows.data_dir(), 'desuratools.json'), 'r') as savefile:
-                data = json.loads(savefile.read())
+                try:
+                    data = json.loads(savefile.read())
+                except Exception:
+                    self.desuraAccountName_input.setText("")
+                    return
                 self.desuraAccountName_input.setText(data['desuraname'])
                 if data['desuraname'] != "":
                     self.populate_owned_games()
