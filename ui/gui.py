@@ -125,8 +125,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         try:
             with open(os.path.join(windows.data_dir(), 'desuratools.json'), 'r') as savefile:
                 data = json.loads(savefile.read())
+                self.desuraAccountName_input.setText(data['desuraname'])
                 if data['desuraname'] != "":
-                    self.desuraAccountName_input.setText(data['desuraname'])
                     self.populate_owned_games()
                 steamid = self.steamID_input.findText(data['steamname'])
                 self.steamID_input.setCurrentIndex(steamid)
@@ -137,10 +137,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.logger.info("Saving to file")
         savefile = open(os.path.join(windows.data_dir(), 'desuratools.json'), 'w')
         savefile.write(
-                json.dumps({
+            json.dumps({
                 'desuraname': self.current_profileid,
                 'steamname': self.steamID_input.currentText()
-                })
+            })
         )
         savefile.close()
         QApplication.quit()
@@ -166,7 +166,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                     self.statusBar.showMessage("")
                 return
             self.ownedGames_list.clear()
-            self.loading_dialog.setAccount(self.current_profileid)
+            self.loading_dialog.setAccount(gameslist.username_from_profile_id(self.current_profileid))
             QApplication.processEvents()
             self.loading_dialog.setMaximum(len(gameslist.GamesList(self.current_profileid).get_games()))
             QApplication.processEvents()
@@ -196,8 +196,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.ownedGames_list.customContextMenuRequested.connect(self.show_game_context)
         self.ownedGames_list.doubleClicked.connect(self.install_game)
-        self.logger.info("All owned Desura games loaded for account {0}".format(gameslist.username_from_profile_id(self.current_profileid)))
-        self.statusBar.showMessage("All owned Desura games loaded for profileid {0}".format(self.current_profileid))
+        self.statusBar.showMessage("All owned Desura games loaded for account {0}".format(
+            gameslist.username_from_profile_id(self.current_profileid))
+        )
+        self.logger.info("All owned Desura games loaded for Desura profile id {0}".format(self.current_profileid))
 
     def set_current_account(self, profileid=None):
         if profileid is None:
