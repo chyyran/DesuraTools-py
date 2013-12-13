@@ -30,6 +30,7 @@ class DesuraGame:
     def storepage(self):
         webbrowser.open("http://desura.com/games/{0}".format(self.shortname), 2)
 
+
 class InstalledGame(DesuraGame):
     def __init__(self, shortname, name, exe, icon):
         """

@@ -19,7 +19,7 @@ def check_icon(exe, icon):
 
 
 def rmsdiff(im1, im2):
-    "Calculate the root-mean-square difference between two images"
+    """Calculate the root-mean-square difference between two images"""
     h = ImageChops.difference(im1, im2).histogram()
     # calculate rms
     return math.sqrt(sum(h*(i**2) for i, h in enumerate(h))) / (float(im1.size[0]) * im1.size[1])
@@ -32,6 +32,7 @@ def transparency_to_white(image):
         return background.convert('RGB')
     except ValueError:
         return image.convert('RGB')
+
 
 def choose_icon(game):
     """

@@ -63,10 +63,12 @@ class GamesList:
                 }
                 #Iterate over all the games and group together information for a game
                 for match in range(len(matches["shortname"])):
-                    games.append(DesuraGame(matches["shortname"][match], unescape(matches["name"][match]), matches["icon"][match][0]))
+                    games.append(DesuraGame(matches["shortname"][match], unescape(matches["name"][match]),
+                                            matches["icon"][match][0]))
             return games
         except AttributeError:
             raise InvalidDesuraProfileError("No games associated with account")
+
 
 def unescape(text):
     def fixup(m):
@@ -99,10 +101,13 @@ def username_from_profile_id(profileid):
     return username
 
 
-class InvalidDesuraProfileError(Exception): pass
+class InvalidDesuraProfileError(Exception):
+    pass
 
 
-class PrivateProfileError(InvalidDesuraProfileError): pass
+class PrivateProfileError(InvalidDesuraProfileError):
+    pass
 
 
-class NoSuchProfileError(InvalidDesuraProfileError): pass
+class NoSuchProfileError(InvalidDesuraProfileError):
+    pass

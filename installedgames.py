@@ -11,17 +11,20 @@ def init_db():
 
 
 def get_item_info_path():
-        desurapath = os.path.join("C:/", "ProgramData", "Desura","DesuraApp")
+        desurapath = os.path.join("C:/", "ProgramData", "Desura", "DesuraApp")
         if os.path.exists(os.path.join(desurapath,"iteminfo_d.sqlite")):
-            return os.path.join(desurapath,"iteminfo_d.sqlite"), True
+            return os.path.join(desurapath, "iteminfo_d.sqlite"), True
         else:
-            return os.path.join(desurapath,"iteminfo_c.sqlite"), False
+            return os.path.join(desurapath, "iteminfo_c.sqlite"), False
 
 
 def _get_games_d():
         games = []
         # 2097164
-        cur = games_db.cursor().execute("SELECT * FROM iteminfo WHERE statusflags = 16777246 OR statusflags = 30 OR statusflags = 26 OR statusflags = 16777242")
+        cur = games_db.cursor().execute(
+            "SELECT * FROM iteminfo "
+            "WHERE statusflags = 16777246 OR statusflags = 30 OR statusflags = 26 OR statusflags = 16777242"
+        )
         for result in cur.fetchall():
             name = result[6]
             shortname = result[7]
@@ -35,7 +38,11 @@ def _get_games_d():
 def _get_games_c():
         games = []
         # 2097164
-        cur = games_db.cursor().execute("SELECT * FROM iteminfo WHERE statusflags = 16777246 OR statusflags = 30 OR statusflags = 26 OR statusflags = 16777242")
+        cur = games_db.cursor().execute("SELECT * FROM iteminfo "
+                                        "WHERE statusflags = 16777246 "
+                                        "OR statusflags = 30 "
+                                        "OR statusflags = 26 "
+                                        "OR statusflags = 16777242")
         for result in cur.fetchall():
             name = result[6]
             shortname = result[7]
@@ -51,5 +58,3 @@ def get_games():
     else:
         games = _get_games_c()
     return games
-
-

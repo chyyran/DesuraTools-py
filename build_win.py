@@ -1,4 +1,3 @@
-import sys
 import os
 import subprocess
 import imp
@@ -8,7 +7,8 @@ import shutil
 import sfx_win
 
 
-def build(buildargs=['-y', '-windowed', '--onedir', '--clean', '--icon="icons/desuratools.ico"', '--noupx', '--version-file=versioninfo.txt'], package=True):
+def build(buildargs=['-y', '-windowed', '--onedir', '--clean', '--icon="icons/desuratools.ico"', '--noupx',
+                     '--version-file=versioninfo.txt'], package=True):
     pyinstaller = os.path.join(site.getsitepackages()[0], "Scripts", "pyinstaller-script.py")
     dependencies = ['PySide', 'PIL', 'win32api', 'win32gui', 'win32ui', 'win32con', 'requests']
     imageformats = os.path.join(site.getsitepackages()[1], "PySide", "plugins", "imageformats")

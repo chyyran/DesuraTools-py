@@ -1,7 +1,6 @@
 #coding=utf-8
 import logging
 import webbrowser
-import sys
 
 from PySide.QtCore import QThread, Qt
 from PySide.QtGui import QDialog, QStyle, QMessageBox, QPixmap
@@ -12,7 +11,7 @@ __author__ = 'ron975'
 
 
 class DesuraWaiter(QThread):
-    def __init__(self, username, parent = None):
+    def __init__(self, username, parent=None):
         super(DesuraWaiter, self).__init__(parent)
         self.username = username
 
@@ -25,6 +24,7 @@ class DesuraWaiter(QThread):
                 self.msleep(100)
             return
         return
+
 
 class ProgressBarDialog(QDialog, Ui_ProgressBar):
     def __init__(self, parent=None):
@@ -49,6 +49,7 @@ class ProgressBarDialog(QDialog, Ui_ProgressBar):
         value = self.progressBar.value()
         self.progressBar.setValue(value+increment)
         self.currentGame.setText(game)
+
 
 def user_choice(text, windowtitle, icon, acceptbutton="OK"):
     choice_dialog = QMessageBox()
@@ -88,7 +89,7 @@ def start_desura():
         windows.start_desura()
     except WindowsError:
         error_message("Desura has not been installed or is not installed correctly. <br />"
-                        "Please install Desura before using DesuraTools").exec_()
+                      "Please install Desura before using DesuraTools").exec_()
         webbrowser.open("http://www.desura.com/install", 2)
     except Exception, e:
         error_message("Error occured when launching Desura <br /> {0}".format(e.message))

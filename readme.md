@@ -26,19 +26,19 @@ All Desura games you have installed currently will be listed under 'Installed De
 Simply go into the File menu, and click "Generate Desura Report". Note that the icons under the "Owned Games" section will only be valid on the host computer as it makes use of file:// URLs. This feature is experimental.
 
 ###Usage Notes
-######<sup>1<sup>
+######1
 Your profile ID is not your Desura username. It can be found and changed under 'Profile ID' under 'Edit Profile'. It is 'the URL to access your profile (eg. http://www.desura.com/members/YOUR_URL)', and if you have not changed it, by default it is identical to your username. If you have set it to nothing, it starts with 'na'. If you have set it to something different than your username, enter that instead.
 
-######<sup>2<sup>
+######2
 DesuraTools does not require, can not access your Desura password. Desura for Windows sets its window title as "Desura Windows: username", where username is your Desura username, and DesuraTools listens for that window to open to detect whether Desura is running, and that you own the Desura account.
 
-######<sup>3<sup>
+######3
 Due to a lack of a proper API for Desura, DesuraTools scrapes your owned games from http://www.desura.com/members/profileid/games, where profileid is your Desura profileid. Thus, DesuraTools only works with profiles that are accessible to the public, i.e. 'Everyone can see my profile', or 'Everyone can see my profile, but my comment history is hidden', will work fine as well. You can temporarily set your profile to public while using DesuraTools.
 
-######<sup>4<sup>
+######4
 Any Steam ID that does not have a custom URL set will be displayed as "ID64:SteamID64", where SteamID64 is the SteamID64 for the account. It is recommended that a custom URL is set.
 
-######<sup>5<sup>
+######5
 DesuraTools makes use of various algorithms to determine the icon that will be set when adding to the Steam library. If the icon of the game executable is similar to the icon provided to Desura, it will opt to use the game's in-built icon, as then the icon will show properly on the jumplist. However, if the game executable icon is different than the icon on the game's Desura page, DesuraTools will add the icon provided to Desura rather than from the game executable. This is to accomodate games that do not have a proper icon set on their executable for various reasons, such as some small indie games using the unlicensed version of UDK.
 
 ***

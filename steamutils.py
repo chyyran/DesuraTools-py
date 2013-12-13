@@ -20,21 +20,21 @@ def shortcut_exists(manager, name):
 
 def associate_ids_with_users():
     steamusers = []
-    for id in usermanager.user_ids_on_this_machine():
+    for steamid in usermanager.user_ids_on_this_machine():
         try:
-            steamusers.append({'steamid32': id, 'customurl': usermanager.name_from_communityid32(id)})
+            steamusers.append({'steamid32': steamid, 'customurl': usermanager.name_from_communityid32(steamid)})
         except TypeError:
-            steamusers.append({'steamid32': id, 'customurl': ''})
+            steamusers.append({'steamid32': steamid, 'customurl': ''})
     return steamusers
 
 
 def get_customurls_on_machine():
     steamusers = []
-    for id in usermanager.user_ids_on_this_machine():
+    for steamid in usermanager.user_ids_on_this_machine():
         try:
-            steamusers.append(usermanager.name_from_communityid32(id))
+            steamusers.append(usermanager.name_from_communityid32(steamid))
         except TypeError:
-            steamusers.append("ID64:{0}".format(usermanager.communityid64_from_communityid32(id)))
+            steamusers.append("ID64:{0}".format(usermanager.communityid64_from_communityid32(steamid)))
     return steamusers
 
 

@@ -146,15 +146,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         QApplication.quit()
 
     def populate_qlistwidget(self, game, qlistwidget, iconurls=False):
-           if iconurls:
-               itemicon = self.qpixmap_from_url(game.icon)
-               QApplication.processEvents()
-           else:
-               itemicon = QPixmap(game.icon)
-               QApplication.processEvents()
-           item = QListWidgetItem(itemicon, game.name, qlistwidget)
-           item.setData(Qt.UserRole, game)
-           qlistwidget.addItem(item)
+        if iconurls:
+            itemicon = self.qpixmap_from_url(game.icon)
+            QApplication.processEvents()
+        else:
+            itemicon = QPixmap(game.icon)
+            QApplication.processEvents()
+        item = QListWidgetItem(itemicon, game.name, qlistwidget)
+        item.setData(Qt.UserRole, game)
+        qlistwidget.addItem(item)
 
     def populate_owned_games(self):
         self.statusBar.showMessage("Waiting for Desura... Please Wait")
@@ -414,6 +414,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             itemicon = QPixmap()
             itemicon.loadFromData(img_data)
             return itemicon
+
 
 def run():
     app = QApplication(sys.argv)
