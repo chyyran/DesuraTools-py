@@ -138,7 +138,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         savefile = open(os.path.join(windows.data_dir(), 'desuratools.json'), 'w')
         savefile.write(
                 json.dumps({
-                'profileid': self.current_profileid,
+                'desuraname': self.current_profileid,
                 'steamname': self.steamID_input.currentText()
                 })
         )
