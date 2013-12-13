@@ -8,20 +8,20 @@ from desuragame import DesuraGame
 
 
 class GamesList:
-    def __init__(self, desuraname):
+    def __init__(self, profileid):
         """
         Represents a list of games owned by a member on Desura.com
-        :param desuraname: Member name
+        :param profileid: Profile ID
         """
-        self.desuraname = desuraname
+        self.profileid = profileid
         self._test_account()
         self.pages = self._get_pages()
 
     def _test_account(self):
         try:
-            desura = urllib2.urlopen("http://www.desura.com/members/{0}/".format(self.desuraname)).read()
+            desura = urllib2.urlopen("http://www.desura.com/members/{0}/".format(self.profileid)).read()
             if re.search(r'The member you are trying to view has set their account to private', desura) is not None:
-                raise PrivateProfileError("Private Desura Profiles are not supported", self.desuraname)
+                raise PrivateProfileError("Private Desura Profiles are not supported", self.profileid)
         except urllib2.HTTPError:
             raise NoSuchProfileError("No such profile exists")
 
@@ -32,7 +32,7 @@ class GamesList:
         """
         try:
             pages = [1]
-            games = urllib2.urlopen("http://www.desura.com/members/{0}/games".format(self.desuraname)).read()
+            games = urllib2.urlopen("http://www.desura.com/members/{0}/games".format(self.profileid)).read()
             for match in re.finditer(r'<a\b href="/members/.*/games/page/[^>]*>(\d)</a>', games):
                 pages.append(int(match.group(1)))
             return pages
@@ -49,7 +49,7 @@ class GamesList:
             for page in self.pages:
                 #Get the page of games
                 gamespage = urllib2.urlopen("http://www.desura.com/members/{0}/games/page/{1}".
-                                            format(self.desuraname, page)).read()
+                                            format(self.profileid, page)).read()
                 #We want only our games, remove the "Popular Games" that mess with our search
                 gamespage = gamespage.replace(re.search(
                     r'(?=<span class="heading">Popular Games</span>).*', gamespage, re.DOTALL).group(), "")
@@ -89,8 +89,20 @@ def unescape(text):
         return text # leave as is
     return re.sub("&#?\w+;", fixup, text)
 
+
+def username_from_profile_id(profileid):
+    try:
+        desura = urllib2.urlopen("http://www.desura.com/members/{0}/".format(profileid)).read()
+    except urllib2.HTTPError:
+        raise NoSuchProfileError("Profile {0} not found".format(profileid))
+    username = re.search(r'(?<=<h1>)(.*)(?=</h1>)', desura).group(0)
+    return username
+
+
 class InvalidDesuraProfileError(Exception): pass
 
+
 class PrivateProfileError(InvalidDesuraProfileError): pass
+
 
 class NoSuchProfileError(InvalidDesuraProfileError): pass

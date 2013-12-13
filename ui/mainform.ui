@@ -33,7 +33,7 @@
       <item>
        <widget class="QLabel" name="desuraAccountName_label">
         <property name="text">
-         <string>Desura Username</string>
+         <string>Desura Profile ID</string>
         </property>
        </widget>
       </item>
@@ -41,6 +41,9 @@
        <widget class="QLineEdit" name="desuraAccountName_input">
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="text">
+         <string>Your Desura Profile ID</string>
         </property>
         <property name="placeholderText">
          <string>Your Desura Username</string>

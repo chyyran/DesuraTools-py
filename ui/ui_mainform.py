@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'D:\Coding\Python\DesuraTools\ui\mainform.ui'
 #
-# Created: Mon Dec 09 09:44:20 2013
+# Created: Fri Dec 13 06:09:30 2013
 #      by: pyside-uic 0.2.15 running on PySide 1.2.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -136,7 +136,8 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "DesuraTools", None, QtGui.QApplication.UnicodeUTF8))
-        self.desuraAccountName_label.setText(QtGui.QApplication.translate("MainWindow", "Desura Username", None, QtGui.QApplication.UnicodeUTF8))
+        self.desuraAccountName_label.setText(QtGui.QApplication.translate("MainWindow", "Desura Profile ID", None, QtGui.QApplication.UnicodeUTF8))
+        self.desuraAccountName_input.setText(QtGui.QApplication.translate("MainWindow", "Your Desura Profile ID", None, QtGui.QApplication.UnicodeUTF8))
         self.desuraAccountName_input.setPlaceholderText(QtGui.QApplication.translate("MainWindow", "Your Desura Username", None, QtGui.QApplication.UnicodeUTF8))
         self.desuraAccountName_verify.setText(QtGui.QApplication.translate("MainWindow", "Load Games", None, QtGui.QApplication.UnicodeUTF8))
         self.steamID_label.setText(QtGui.QApplication.translate("MainWindow", "Steam ID", None, QtGui.QApplication.UnicodeUTF8))
