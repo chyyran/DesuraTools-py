@@ -290,7 +290,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if gamelist[1] == 0:
             for item in gamelist[0].selectedItems():
                 game = item.data(Qt.UserRole)
-                steamid = steam_user_manager.communityid64_from_name(self.steamID_input.currentText())
+
+                if 'ID64:' in self.steamID_input.currentText():
+                    steamid = long(self.steamID_input.currentText().replace('ID64:', ''))
+                else:
+                    steamid = steam_user_manager.communityid64_from_name(self.steamID_input.currentText())
                 QApplication.processEvents()
                 if not steamutils.check_steam_version(steamid, game.name):
                     if not steamutils.shortcut_exists(self.get_steam_manager(), game.name):
@@ -301,7 +305,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                         self.statusBar.showMessage("{0} already exists in the Steam library".format(game.name))
                         QApplication.processEvents()
                 else:
-                    self.statusBar.showMessage("You already own the Steam version of {0}".format(game.name))
+                    self.statusBar.showMessage("Steam account {0} already owns the Steam version of {1}".format(
+                        self.steamID_input.currentText(), game.name)
+                    )
                     QApplication.processEvents()
 
     def get_steam_manager(self):
@@ -368,12 +374,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             if result == QMessageBox.AcceptRole:
                 self.logger.info("Waiting for Steam to close")
-                self.statusBar.showMessage("Waiting for Steam to close")
+                self.statusBar.showMessage("Waiting for Steam to close.. Please wait")
                 windows.close_steam()
                 return True
             else:
                 self.logger.error("Could not add game to Steam - Steam still running")
-                self.statusBar.showMessage("Add to Steam cancelled")
+                self.statusBar.showMessage("Could not add game to Steam - Steam still running")
                 return False
         else:
             return True

@@ -179,3 +179,35 @@ def user_ids_on_this_machine():
         if os.path.isdir(os.path.join(userdata_dir,entry)):
             ids.append(int(entry))
     return ids
+
+
+def communityid64_from_communityid32(user_id):
+    w = user_id
+    y = w & 1
+    z = (w - y) / 2
+    v = __v_value__
+    return (z * 2) + v + y
+
+def communityid32_from_communityid64(user_id):
+    z = steam_id_from_id64(user_id)
+    y = user_id & 1
+    return (z * 2) + y
+
+def steam_id_from_id64(id64):
+    """
+    Reverse engineering the Steam ID of a user revolves around the formula
+    W = Z * 2 + V + Y, where
+    W = The 64 bit Community ID for the user
+    Z = The Steam User ID
+    V = The 64 bit Steam Account Type Identifier (0x0110000100000000 for users)
+    Y = Either 0 or 1, can be determined based on whether W is even or odd
+
+    Doing some arithmatic, the formula turns in to Z = (W - V - Y) / 2
+
+    Returns Z from the above formula
+    """
+    w = id64
+    v = __v_value__
+    y = id64 & 1
+    z = (w - v - y) / 2
+    return z

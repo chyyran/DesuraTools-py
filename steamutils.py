@@ -21,14 +21,20 @@ def shortcut_exists(manager, name):
 def associate_ids_with_users():
     steamusers = []
     for id in usermanager.user_ids_on_this_machine():
-        steamusers.append({'steamid32': id, 'customurl': usermanager.name_from_communityid32(id)})
+        try:
+            steamusers.append({'steamid32': id, 'customurl': usermanager.name_from_communityid32(id)})
+        except TypeError:
+            steamusers.append({'steamid32': id, 'customurl': ''})
     return steamusers
 
 
 def get_customurls_on_machine():
     steamusers = []
     for id in usermanager.user_ids_on_this_machine():
-        steamusers.append(usermanager.name_from_communityid32(id))
+        try:
+            steamusers.append(usermanager.name_from_communityid32(id))
+        except TypeError:
+            steamusers.append("ID64:{0}".format(usermanager.communityid64_from_communityid32(id)))
     return steamusers
 
 
@@ -49,3 +55,5 @@ def check_steam_version(steamid, name):
         if game.name == name:
             return True
     return False
+
+
